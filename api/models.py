@@ -3,6 +3,8 @@ from django.db import models
 class event(models.Model) :
     title = models.CharField(max_length=250)
     description = models.TextField()
+    venue = models.CharField(max_length=250)
+    forGroups = models.TextField()
     # creator = models.FOr
     helpers = models.TextField()
 class attendanceTakers(models.Model) :
