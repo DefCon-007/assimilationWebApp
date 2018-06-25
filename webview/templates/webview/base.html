@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+   <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!-- Sweet Alert -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
+{#<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>#}
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+  <a class="navbar-brand" href="#">
+   <img src="{% static '/webview/kgplogo.png' %}" alt="Logo" style="width:40px;"></a>
+    <!-- Links -->
+  <!-- Toggler/collapsibe Button -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+
+  <!-- Navbar links -->
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav">
+        {% if createEventPermission %}
+     <li class="nav-item">
+        <a class="nav-link" href="#">Create event</a>
+      </li>
+    {% endif %}
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item" style="align-items: right">
+        <a class="nav-link" href="#">Logout</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+{# <div class="ms-NavBar">#}
+{#      <ul class="ms-NavBar-items">#}
+{#          <li class="ms-NavBar-item"><img src="{% static '/webview/kgplogo.png' %} " height="40" width="36"></li>#}
+{#        <li class="ms-NavBar-item is-disabled" style="color: black"><span>Email underwritting demo</span></li>#}
+          {#        <li class="ms-NavBar-item ms-NavBar-item--hasMenu">#}
+{#          <a class="ms-NavBar-link" href="#">States</a>#}
+{#          <i class="ms-NavBar-chevronDown ms-Icon ms-Icon--chevronDown"></i>#}
+{#          <ul class="ms-ContextualMenu">#}
+{#            <li class="ms-ContextualMenu-item"><a class="ms-ContextualMenu-link" href="#">Florida</a></li>#}
+{#            <li class="ms-ContextualMenu-item"><a class="ms-ContextualMenu-link" href="#">Washington</a></li>#}
+{#            <li class="ms-ContextualMenu-item"><a class="ms-ContextualMenu-link" href="#">Texas</a></li>#}
+{#          </ul>#}
+{#        </li>#}
+{#        <li class="ms-NavBar-item"><a class="ms-NavBar-link" href="#">About</a></li>#}
+{#        <li class="ms-NavBar-item is-disabled"><a class="ms-NavBar-link" href="#">Disabled Item</a></li>#}
+{#            {% block rightItem %}#}
+{#          {% endblock %}#}
+      {#        <li class="ms-NavBar-item ms-NavBar-item--right"><a class="ms-NavBar-link" href="#">Right-Aligned Item</a></li>#}
+{##}
+{#        </ul>#}
+{#    </div>#}
+   {% block content %}
+            {% endblock %}
+
+</body>
+</html>
