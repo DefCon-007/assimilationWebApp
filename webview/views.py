@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
+from api.src import utils
 # Create your views here.
 from rest_framework.decorators import api_view
 
@@ -20,6 +20,16 @@ def index(request) :
 
 
 @api_view(["GET"])
+@login_required()
 def createEvent(request) :
-    #Function to render create template page
-    return render(request, '')
+    return render(request, 'webview/errorPage.html', {
+        "d1": 4, "d2": 0, "d3": 4
+    })
+    if request.user.has_perm('api.add_event'):
+        dataForm = utils.eventForm
+        #Function to render create template page
+        return render(request, 'webview/createevent.html', {'form':dataForm, })
+    else :
+        return render(request, 'webview/errorPage.html', {
+            "d1" : 4, "d2" : 0 , "d3" : 4
+        })
