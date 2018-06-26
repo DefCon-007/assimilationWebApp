@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User, Group
+from api.models import event
 
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
@@ -33,4 +34,25 @@ def getHelpersFromGroupName(grpNameList):
             print("Unknown grp found")
     return userList
 
-# def addNewEvent(title,description,venue,date,time,audience,helpers) :
+def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) :
+    data = event()
+    data.title = title
+    data.description = description
+    data.venue = venue
+    data.datetime = datetimeobj
+    data.audience = audience
+    data.createdBy = createdBy
+    for helper in helpers :
+        user = getUserFromUsername(helper)
+        if user :
+            data.helpers.add(user)
+    data.save()
+
+
+
+def getUserFromUsername(username) :
+    try:
+        user = User.objects.get(username=username)
+        return user
+    except Exception as e:
+        return None

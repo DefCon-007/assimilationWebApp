@@ -37,14 +37,30 @@ def createEvent(request) :
     if request.user.has_perm('api.add_event'):
         if request.method == "POST" :
             data = request.data
+            print(request.data)
             try :
-                title = data["title"][0]
-                description = data["description"][0]
-                venue = data["venue"][0]
-                date=data["date"][0]
-                time = data["time"][0]
-                audience = data["audience"]
-
+                title = data["title"]
+                description = data["description"]
+                venue = data["venue"]
+                date=data["date"]
+                time = data["time"]
+                datetimestring = date + "|"+time
+                print(datetimestring)
+                datetimeobject = datetime.datetime.strptime(datetimestring,"%Y-%m-%d|%H : %M")
+                audience = "|".join(data["audience"])
+                helpers = data["helpers"]
+                db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject, audience=audience, helpers=helpers, createdBy=request.user)
+                context = {
+                    "swal" :{
+                        "title" : "Success",
+                        "text" : "Event created successfully",
+                        "icon" : "success",
+                        "butText" : "Close"
+                    },
+                    "swalFlag" : True,
+                    "createEventPermission": True,
+                }
+                return render(request,"webview/createevent.html", context=context)
             except Exception as e :
                 print(f"webview:createEvent:Following exeception occured.\n{e}\n{traceback.format_exc()}")
 

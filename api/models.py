@@ -6,9 +6,9 @@ class event(models.Model) :
     description = models.TextField()
     venue = models.CharField(max_length=250)
     datetime = models.DateTimeField()
-    forGroups = models.TextField()
+    audience = models.TextField()
     # creator = models.FOr
-    helpers = models.TextField()
+    helpers = models.ManyToManyField(User)
     createdBy = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="events")
 class attendanceTakers(models.Model) :
     name = models.CharField(max_length=250)

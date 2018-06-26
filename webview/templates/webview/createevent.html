@@ -2,6 +2,16 @@
 
 {% block content %}
 
+        {%  if swalFlag %}
+        <script type="application/javascript">
+                      swal({
+                      title: "{{ swal.title }}",
+                      text: "{{ swal.text }}",
+                      icon: "{{ swal.icon }}",
+                      button: "{{ swal.butText }}",
+                    });
+        </script>
+    {% endif %}
 {#    <form method="POST" class="post-form">{% csrf_token %}#}
 {#        {{ form.as_p }}#}
 {#        <button type="submit" class="save btn btn-default">Save</button>#}
@@ -29,12 +39,12 @@
   </div>
         <div class="form-group">
     <label for="time">Time:</label>
-    <input type="text" class="form-control timepicker" id="time" name="timepicker" name="time" required>
+    <input type="text" class="form-control timepicker" id="time" name="time" name="time" required>
   </div>
 
          <div class="form-group">
               <label for="helpers">Audience:</label>
-<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;">
+<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;" required>
             {% for aud in audience %}
         <option value="{{ aud.key }}">{{ aud.value }}</option>
     {% endfor %}
