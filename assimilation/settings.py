@@ -124,3 +124,10 @@ LOGIN_URL = "login"
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+GROUPS_MAP = {
+    "hc_rk" : "Hall Council RK",
+    "hc_rp" : "Hall Council RP",
+    "dep_ag" : "Department AG",
+    "dep_ar" : "Department AR",
+}

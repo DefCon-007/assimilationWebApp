@@ -15,3 +15,22 @@ def getListofAllDepAndHallGroups() :
         except IndexError :
             pass
     return depGroupList,hallGroupList
+
+def getHelpersFromGroupName(grpNameList):
+    """
+    Returns a list of User objects from the groups supplied and admin group
+    :param grpNameList: A list of group names
+    :return:
+    """
+    userList = list()
+    allAdmins = User.objects.filter(groups__name="admin")
+    for grpName in grpNameList :
+        if grpName == "admin" :
+            pass
+        try :
+            userList.extend(allAdmins.filter(groups__name=grpName))
+        except ValueError :
+            print("Unknown grp found")
+    return userList
+
+# def addNewEvent(title,description,venue,date,time,audience,helpers) :
