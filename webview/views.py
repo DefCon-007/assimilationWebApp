@@ -11,11 +11,6 @@ from assimilation import settings
 @login_required()
 def index(request) :
     print(request.user)
-    if request.user.has_perm('api.add_event') :
-        print("User can change/add events")
-        createEventPermission = True
-    else :
-        createEventPermission = False
     grpList = list()
     for g in request.user.groups.all():
         try :
@@ -23,7 +18,7 @@ def index(request) :
         except :
             print(f"Exception for {g.name}")
     context = {
-        'createEventPermission' : createEventPermission,
+
         'grpList' : grpList
     }
 
@@ -45,11 +40,10 @@ def createEvent(request) :
                 date=data["date"]
                 time = data["time"]
                 datetimestring = date + "|"+time
-                print(datetimestring)
                 datetimeobject = datetime.datetime.strptime(datetimestring,"%Y-%m-%d|%H : %M")
-                audience = "|".join(data["audience"])
-                helpers = data["helpers"]
-                db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject, audience=audience, helpers=helpers, createdBy=request.user)
+                audience = request.POST.getlist('audience')
+                helpers = request.POST.getlist('helpers')
+                db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject, audiences=audience, helpers=helpers, createdBy=request.user)
                 context = {
                     "swal" :{
                         "title" : "Success",
@@ -58,7 +52,7 @@ def createEvent(request) :
                         "butText" : "Close"
                     },
                     "swalFlag" : True,
-                    "createEventPermission": True,
+
                 }
                 return render(request,"webview/createevent.html", context=context)
             except Exception as e :
@@ -85,7 +79,6 @@ def createEvent(request) :
                 })
             #Function to render create template page
             context={"mindate":datetime.datetime.today().strftime('%Y-%m-%d'),
-                     "createEventPermission":True,
                      "helpers" : helperListForView,
                      "audience" : grpNameMapped,
                      }
@@ -95,3 +88,10 @@ def createEvent(request) :
         return render(request, 'webview/errorPage.html', {
             "d1" : 4, "d2" : 0 , "d3" : 1, "msg" : "Sorry! You are not authorized for this."
         })
+
+
+@api_view(["GET"])
+def upcomingEvents(request) :
+    print(request.user)
+    eventsList = db.getEventFromUsername(request.user.username)
+    return render(request, "webview/upcomingevents.html", {"eventsList":eventsList})

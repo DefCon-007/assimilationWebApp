@@ -1,0 +1,43 @@
+{% extends 'webview/base.html' %}
+
+{% block content %}
+<table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>S.no.</th>
+                <th>Title</th>
+                <th>Venue</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Created By</th>
+                <th>Helpers</th>
+                <th>Your role</th>
+                <th>Audience</th>
+                <th></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in eventsList %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                <td>{{ event.title }}</td>
+                <td>{{ event.venue }}</td>
+                <td>{{ event.date }}</td>
+                <td>{{ event.time }}</td>
+                <td>{{ event.createdBy }}</td>
+                <td><ul>
+                    {% for helper in event.helpers %}
+                        <li>{{ helper }}</li>
+                        {% endfor %}</ul>
+                </td>
+                <td>{{ event.role }}</td>
+                <td>{{ event.audience }}</td>
+                <td><button>Mark attendance</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+</table>
+
+
+{% endblock %}

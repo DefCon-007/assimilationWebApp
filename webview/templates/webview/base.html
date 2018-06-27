@@ -41,13 +41,13 @@
   <!-- Navbar links -->
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
-        {% if createEventPermission %}
+        {% if perms.api.add_event  %}
      <li class="nav-item">
         <a class="nav-link" href="{% url 'createevent' %}">Create event</a>
       </li>
     {% endif %}
       <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link" href="{% url 'upcomingevents' %}">Upcoming Events</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#">Logout</a>
