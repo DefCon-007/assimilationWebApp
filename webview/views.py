@@ -95,3 +95,39 @@ def upcomingEvents(request) :
     print(request.user)
     eventsList = db.getEventFromUsername(request.user.username)
     return render(request, "webview/upcomingevents.html", {"eventsList":eventsList})
+
+@api_view(["GET","POST"])
+def markAttendance(request) :
+    if request.method == "GET" :
+        data = request.query_params
+        try :
+            eventUUID = data["eventId"]
+            event = db.getEventByUUID(eventUUID)
+            context = {
+                "attendanceList" : db.getAttendanceObjectListFromEvent(event),
+                "eventUUID" : eventUUID,
+                "eventTitle" : event.title
+            }
+            return render(request,"webview/markattendance.html",context=context)
+        except KeyError:
+            return  render(request, "Key error")
+    else :
+        data = request.data
+        try :
+            eventUUID = data["eventUid"]
+            userList = data["userList"]
+            print(userList)
+            db.markAttendanceByUserListAndEventUUID(eventUUID,userList)
+            context = {
+                "swal": {
+                    "title": "Success",
+                    "text": "Attendance marked successfully",
+                    "icon": "success",
+                    "butText": "Close"
+                },
+                "swalFlag": True,
+            }
+            return render(request,'webview/index.html', context=context)
+        except Exception as e:
+            print(e)
+        print(data)

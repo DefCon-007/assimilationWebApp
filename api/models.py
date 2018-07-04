@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User,Group
 from django.db import models
-
+import uuid
 class event(models.Model) :
     title = models.CharField(max_length=250)
     description = models.TextField()
@@ -10,6 +10,7 @@ class event(models.Model) :
     # creator = models.FOr
     helpers = models.ManyToManyField(User, related_name="manytomanyevents")
     createdBy = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="owned_events")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 class attendance(models.Model) :
     event = models.ForeignKey(event, on_delete=models.PROTECT,default=None,related_name="eventName")
     user = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="student")

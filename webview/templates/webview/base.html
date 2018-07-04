@@ -23,6 +23,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.6/chosen.jquery.min.js"></script>
     <!-- Sweet Alert -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 {#<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>#}
 
 </head>
@@ -49,13 +50,25 @@
       <li class="nav-item">
         <a class="nav-link" href="{% url 'upcomingevents' %}">Upcoming Events</a>
       </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'password_change' %}">Change password</a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" href="#">Logout</a>
       </li>
     </ul>
   </div>
 </nav>
-
+      {%  if swalFlag %}
+        <script type="application/javascript">
+                      swal({
+                      title: "{{ swal.title }}",
+                      text: "{{ swal.text }}",
+                      icon: "{{ swal.icon }}",
+                      button: "{{ swal.butText }}",
+                    });
+        </script>
+    {% endif %}
 {# <div class="ms-NavBar">#}
 {#      <ul class="ms-NavBar-items">#}
 {#          <li class="ms-NavBar-item"><img src="{% static '/webview/kgplogo.png' %} " height="40" width="36"></li>#}

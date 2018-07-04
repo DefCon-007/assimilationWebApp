@@ -33,6 +33,30 @@ def getHelpersFromGroupName(grpNameList):
             print("Unknown grp found")
     return userList
 
+#Attendance
+def addStudentsInAttendanceTable(audienceList,event) :
+    userList = list()
+    for audience in audienceList :
+        userList.extend(User.objects.filter(groups__name='student').filter(groups__name=audience))
+    for user in userList :
+        attendanceObject = attendance()
+        attendanceObject.event = event
+        attendanceObject.user = user
+        attendanceObject.save()
+def getAttendanceObjectListFromEvent(event):
+    return event.eventName.get_queryset()
+def markAttendanceByUserListAndEventUUID(uid,userList):
+    particularEvent = getEventByUUID(uid)
+    if particularEvent :
+        for user,status in userList.items() :
+            userObj = getUserFromUsername(user)
+            if userObj :
+                attendanceObj = attendance.objects.get(event=particularEvent, user=userObj)
+                if attendanceObj :
+                    attendanceObj.attendanceStatus = status
+                    attendanceObj.save()
+
+
 
 #EVENT
 def addNewEvent(title,description,venue,datetimeobj,audiences,helpers,createdBy) :
@@ -45,7 +69,6 @@ def addNewEvent(title,description,venue,datetimeobj,audiences,helpers,createdBy)
     data.save()
     for audience in audiences :
         grp = Group.objects.get(name=audience)
-        print(grp)
         data.audience.add(grp)
     for helper in helpers :
         user = getUserFromUsername(helper)
@@ -53,16 +76,6 @@ def addNewEvent(title,description,venue,datetimeobj,audiences,helpers,createdBy)
             data.helpers.add(user)
     data.save()
     addStudentsInAttendanceTable(audiences,data)
-
-def addStudentsInAttendanceTable(audienceList,event) :
-    userList = list()
-    for audience in audienceList :
-        userList.extend(User.objects.filter(groups__name='student').filter(groups__name=audience))
-    for user in userList :
-        attendanceObject = attendance()
-        attendanceObject.event = event
-        attendanceObject.user = user
-        attendanceObject.save()
 
 def getEventFromUsername(username) :
     user = getUserFromUsername(username)
@@ -94,10 +107,20 @@ def getEventDictListFromEventList(eventList,role) :
         "time": datetime.strftime('%H:%M'),
         "createdBy": f"{event.createdBy.get_full_name()} ({event.createdBy.username})",
         "helpers": helperList,
-        "role": role
+        "role": role,
+        "uid" : str(event.id)
         })
     return listToReturn
 
+def getEventByUUID(uid) :
+    try :
+        events = event.objects.get(id=uid)
+        return events
+    except Exception as e :
+        print(e)
+        return None
+
+#EXTRAS
 def getUserFromUsername(username) :
     try:
         user = User.objects.get(username=username)

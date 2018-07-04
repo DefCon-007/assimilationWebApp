@@ -19,6 +19,7 @@
         </thead>
         <tbody>
             {% for event in eventsList %}
+                {{ event }}
                 <tr>
                     <td>{{ forloop.counter }}</td>
                 <td>{{ event.title }}</td>
@@ -33,7 +34,7 @@
                 </td>
                 <td>{{ event.role }}</td>
                 <td>{{ event.audience }}</td>
-                <td><button>Mark attendance</button></td>
+                <td><button onclick=(location.href="{% url 'markattendance' %}?eventId={{ event.uid }}")>Mark attendance</button></td>
                 </tr>
             {% endfor %}
         </tbody>

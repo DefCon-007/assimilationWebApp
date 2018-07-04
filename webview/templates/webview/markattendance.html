@@ -1,42 +1,120 @@
 {% extends 'webview/base.html' %}
 
 {% block content %}
-    <table class="table table-hover table-bordered table-striped">
+    <div style="display: flex;  flex-direction: row;  flex-wrap: nowrap;  justify-content: center;">
+    <input type="text" id="name" onkeyup="namefilter()" placeholder="Search for names.." style="width: 50%; margin: 10px">
+    <input type="text" id="roll" onkeyup="rollfilter()" placeholder="Search for roll number.." style="width: 50%; margin: 10px">
+    </div>
+<br>
+    <h1 align="center">{{ eventTitle }}</h1>
+    <table class="table table-hover table-bordered table-striped" id="table">
         <thead>
             <tr>
                 <th>S.no.</th>
                 <th>Roll no.</th>
                 <th>Name</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Created By</th>
-                <th>Helpers</th>
-                <th>Your role</th>
-                <th>Audience</th>
-                <th></th>
-
+                <th>Attendance</th>
             </tr>
         </thead>
         <tbody>
-            {% for event in eventsList %}
+            {% for att in attendanceList %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                <td>{{ event.title }}</td>
-                <td>{{ event.venue }}</td>
-                <td>{{ event.date }}</td>
-                <td>{{ event.time }}</td>
-                <td>{{ event.createdBy }}</td>
-                <td><ul>
-                    {% for helper in event.helpers %}
-                        <li>{{ helper }}</li>
-                        {% endfor %}</ul>
-                </td>
-                <td>{{ event.role }}</td>
-                <td>{{ event.audience }}</td>
-                <td><button>Mark attendance</button></td>
+                <td>{{ att.user.username }}</td>
+                <td>{{ att.user.get_full_name}}</td>
+                    {% if att.attendanceStatus %}
+                <td><input type="checkbox" name="attendanceCheckbox" value="{{ att.user.username }}" checked></td>
+                {% else %}
+                <td><input type="checkbox" name="attendanceCheckbox" value="{{ att.user.username }}"></td>
+                {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
 </table>
 
+    <button onclick="sendNewAttendance()" style="margin:auto;display:block">Submit</button>
+<script type="application/javascript">
+function sendNewAttendance() {
+    let eventUUID = "{{ eventUUID }}";
+    var checkedItemsList = {};
+    var checkBoxList = document.getElementsByName("attendanceCheckbox")
+    console.log(checkBoxList)
+    for (var i=0;i<checkBoxList.length;i++) {
+        var username = checkBoxList[i].value;
+        if (checkBoxList[i].checked){
+            checkedItemsList[username] = true;
+        }
+        else {
+            checkedItemsList[username] = false;
+        }
+    }
+    console.log(checkedItemsList)
+    sendRequest({
+        "eventUid" :eventUUID,
+        "userList" : checkedItemsList
+    })
+
+}
+
+function sendRequest(data) {
+     var csrftoken = Cookies.get('csrftoken');
+    let url = "{% url 'markattendance' %}" ;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        console.log(this.responseText);
+         document.open();
+        document.write(this.responseText);
+        document.close();
+        {#location.reload(true);#}
+     {#document.getElementById("demo").innerHTML = this.responseText;#}
+    }
+  };
+  xhttp.open("POST", url, true);
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.setRequestHeader("X-CSRFToken", csrftoken);
+  xhttp.send(JSON.stringify(data));
+}
+
+function namefilter() {
+  // Declare variables
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("name");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("table");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[2];
+    if (td) {
+      if ((td.innerHTML.toUpperCase().indexOf(filter) > -1)) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+function rollfilter() {
+  // Declare variables
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("roll");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("table");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      if ((td.innerHTML.toUpperCase().indexOf(filter) > -1)) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
 {% endblock %}
