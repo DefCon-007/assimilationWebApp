@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User, Group
 from api.models import event, attendance
+from assimilation import settings
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
     depGroupList = list()
@@ -23,10 +24,10 @@ def getHelpersFromGroupName(grpNameList):
     :return:
     """
     userList = list()
-    allAdmins = User.objects.filter(groups__name="admin")
+    allAdmins = User.objects.filter(groups__name=settings.ATTENDANCE_TAKER_GROUP_NAME)
     for grpName in grpNameList :
-        if grpName == "admin" :
-            pass
+        if grpName == settings.ATTENDANCE_TAKER_GROUP_NAME :
+            continue
         try :
             userList.extend(allAdmins.filter(groups__name=grpName))
         except ValueError :
@@ -81,11 +82,18 @@ def getEventFromUsername(username) :
     user = getUserFromUsername(username)
     formattedEventList = list()
     if user :
-        eventList = user.owned_events.get_queryset()
-        formattedEventList.extend(getEventDictListFromEventList(eventList, "Owner"))
-        eventList = user.manytomanyevents.get_queryset()
-        formattedEventList.extend(getEventDictListFromEventList(eventList, "Helper"))
-        return formattedEventList
+        if user.has_perm('api.add_event') :
+            #this implies user is a attendance taker
+            eventList = user.owned_events.get_queryset()
+            formattedEventList.extend(getEventDictListFromEventList(eventList, "Owner"))
+            eventList = user.manytomanyevents.get_queryset()
+            formattedEventList.extend(getEventDictListFromEventList(eventList, "Helper"))
+            return formattedEventList
+        else :
+            #this means user is a student
+            for grp in user.groups.all() :
+                formattedEventList.extend(getEventDictListFromEventList(grp.group_events.get_queryset(),"student" ))
+            return formattedEventList
     else :
         return []
 def getEventDictListFromEventList(eventList,role) :

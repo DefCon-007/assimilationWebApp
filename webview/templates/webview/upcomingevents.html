@@ -11,15 +11,18 @@
                 <th>Time</th>
                 <th>Created By</th>
                 <th>Helpers</th>
-                <th>Your role</th>
-                <th>Audience</th>
-                <th></th>
+                        {% if perms.api.add_event  %}
 
+                <th>Your role</th>
+                {% endif %}
+                <th>Audience</th>
+            {% if perms.api.add_event  %}
+                <th></th>
+            {% endif %}
             </tr>
         </thead>
         <tbody>
             {% for event in eventsList %}
-                {{ event }}
                 <tr>
                     <td>{{ forloop.counter }}</td>
                 <td>{{ event.title }}</td>
@@ -32,13 +35,20 @@
                         <li>{{ helper }}</li>
                         {% endfor %}</ul>
                 </td>
+                 {% if perms.api.add_event  %}
                 <td>{{ event.role }}</td>
+                {% endif %}
                 <td>{{ event.audience }}</td>
+                {% if perms.api.add_event  %}
                 <td><button onclick=(location.href="{% url 'markattendance' %}?eventId={{ event.uid }}")>Mark attendance</button></td>
+                {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
 </table>
-
+<script type="application/javascript">
+    var d = document.getElementById("nav_upcomingevent");
+    d.className += " active";
+</script>
 
 {% endblock %}

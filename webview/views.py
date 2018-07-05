@@ -70,6 +70,7 @@ def createEvent(request) :
                     })
                 except :
                     print(f"Exception for {g.name}")
+            print(grpNameList)
             validHelpersList = db.getHelpersFromGroupName(grpNameList)
             helperListForView = list()
             for helper in validHelpersList :
@@ -131,3 +132,8 @@ def markAttendance(request) :
         except Exception as e:
             print(e)
         print(data)
+
+
+def complaint(request) :
+    if request.method == "GET" :
+        return render(request, "webview/complaint.html")

@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import configparser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+config = configparser.ConfigParser()
+config.read(BASE_DIR + "/settingsConfigFile.ini")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -78,10 +81,22 @@ WSGI_APPLICATION = 'assimilation.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': config.get("django","ENGINE"),
+        'NAME': config.get("django","NAME"),
+        'USER': config.get("django","USER"),
+        'PASSWORD': config.get("django","PASSWORD"),
+        'HOST': config.get("django","HOST"),
+        'PORT': config.get("django","PORT"),
     }
 }
 
@@ -110,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -120,14 +135,21 @@ USE_TZ = True
 
 LOGIN_REDIRECT_URL = "index"
 LOGIN_URL = "login"
+LOGOUT_REDIRECT_URL = "login"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+ATTENDANCE_TAKER_GROUP_NAME = "attendanceTakers"
+
 GROUPS_MAP = {
     "hc_rk" : "Hall Council RK",
     "hc_rp" : "Hall Council RP",
+    "hc_ms" : "Hall Council MS",
+    "hc_llr" : "Hall Council LLR",
+    "hc_mmm" : "Hall Council MMM",
     "dep_ag" : "Department AG",
     "dep_ar" : "Department AR",
 }

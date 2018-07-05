@@ -19,4 +19,9 @@ class student(models.Model) :
     name = models.CharField(max_length=250)
     rollno = models.CharField(max_length=20)
     email = models.CharField(max_length=250)
+
+class complaint(models.Model) :
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    description = models.TextField(blank=True,null=True)
+    event = models.ForeignKey(event, on_delete=models.PROTECT, default=None, related_name="complaintEvent")
 # Create your models here.
