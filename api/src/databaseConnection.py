@@ -2,6 +2,7 @@ from django.contrib.auth.models import User, Group
 from api.models import event, attendance, complaint
 from assimilation import settings
 from api.src import utils
+import datetime
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
     depGroupList = list()
@@ -138,14 +139,35 @@ def addNewComplaintByEventAndUser(message,event,user) :
     if event and user :
         data = complaint()
         data.message = message
-        data.save()
-        data.event.add(event)
-        data.user.add(user)
+        data.event = event
+        data.user = user
+        data.createdDateTime = datetime.datetime.now()
         data.save()
         return True
     else :
         return False
-
+def getAllFormatedComplaintsDict() :
+    allComplaintsList = complaint.objects.filter()
+    allComplaintFormattedDictList = list()
+    for c in allComplaintsList :
+        event = c.event
+        user = c.user
+        helperList = list()
+        for helper in event.helpers.all():
+            helperList.append(f"{helper.get_full_name()} ({helper.username})")
+        allComplaintFormattedDictList.append({
+            "eventCreatedBy" : f"{event.createdBy.get_full_name()} ({event.createdBy.username})",
+            "eventDate" : event.datetime.strftime("%d/%m%Y"),
+            "eventHelpers" : helperList,
+            "eventVenue" : event.venue,
+            "eventTitle" : event.title,
+            "complaintBy" : f"{user.get_full_name()} ({user.username})",
+            "complaintDateTime" : c.createdDateTime.strftime("%Y-%m-%d at %H : %M"),
+            "complaintMessage" : c.message,
+            "complaintResolutionStatus" : c.resolutionStatus,
+            "complaintId" : c.id
+        })
+    return allComplaintFormattedDictList
 
 #EXTRAS
 def getUserFromUsername(username) :

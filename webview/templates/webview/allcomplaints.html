@@ -1,0 +1,51 @@
+{% extends 'webview/base.html' %}
+{% block content %}
+<table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>S.no.</th>
+                <th>Event Title</th>
+                <th>Event Venue</th>
+                <th>Event Date</th>
+                <th>Event Created By</th>
+                <th>Event Helpers</th>
+                <th>Complaint By</th>
+                <th>Complaint Date/Time</th>
+                <th>Complaint Message</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in allComplaints %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                <td>{{ complaint.eventTitle }}</td>
+                <td>{{ complaint.eventVenue }}</td>
+                <td>{{ complaint.eventDate }}</td>
+                <td>{{ complaint.eventCreatedBy }}</td>
+                  <td><ul>
+                    {% for helper in complaint.eventHelpers %}
+                        <li>{{ helper }}</li>
+                        {% endfor %}</ul>
+                </td>
+                <td>{{ complaint.complaintBy }}</td>
+                <td>{{ complaint.complaintDateTime }}</td>
+                <td>{{ complaint.complaintMessage }}</td>
+                {% if complaint.complaintResolutionStatus %}
+                    <td><button disabled>Resolved</button></td>
+                {% else %}
+                    <td><button onclick=changeComplaintStatus(this)  id="{{ complaint.complaintId }}">Mark resolved</button></td>
+                {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+</table>
+<script type="application/javascript">
+    function changeComplaintStatus(button) {
+        var id = button.id;
+        let Baseurl = {% url 'changeComplaintStatus' %};
+        location.href= Baseurl + "?complaintId=" + id ;
+    }
+</script>
+
+{% endblock %}

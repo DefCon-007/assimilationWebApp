@@ -205,4 +205,8 @@ def complaint(request) :
         })
 
 def allComplaints(request):
+    allComplaints = db.getAllFormatedComplaintsDict()
+    return  render(request,"webview/allcomplaints.html", {
+        "allComplaints" : allComplaints
+    })
     pass
