@@ -1,4 +1,10 @@
 {% load static %}
+{% load webview_tags %}
+{#{% settings_value "ATTENDANCE_TAKER_GROUP_NAME" %}#}
+{#{% if request.user|isMember : "admin" %}#}
+{#    {% else %}#}
+
+{#{% endif %}#}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,7 +57,7 @@
         <a class="nav-link" href="{% url 'upcomingevents' %}">Upcoming Events</a>
       </li>
 
-            {% if  perms.api.delete_complaint  %}
+            {% if request.user|isMember:"SUPER_ADMINS_GROUP_NAME" %}
      <li class="nav-item" id="nav_complaint">
         <a class="nav-link" href="{% url 'allComplaints' %}">Complaints</a>
       </li>
