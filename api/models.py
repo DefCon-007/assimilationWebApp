@@ -22,6 +22,7 @@ class student(models.Model) :
 
 class complaint(models.Model) :
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    description = models.TextField(blank=True,null=True)
-    event = models.ForeignKey(event, on_delete=models.PROTECT, default=None, related_name="complaintEvent")
+    message = models.TextField(blank=True,null=True)
+    event = models.ManyToManyField(event, related_name="complaintEvent")
+    user = models.ManyToManyField(User, related_name="complaint")
 # Create your models here.

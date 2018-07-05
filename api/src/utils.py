@@ -17,6 +17,8 @@ def authenticateCredentials(username,password) :
     user = authenticate(username=username, password=password)
     return user
 
+def isMember(user, groupName) :
+    return user.groups.filter(name=groupName).exists()
 
 # def addNewEvent() :
 #

@@ -1,49 +1,30 @@
 {% extends 'webview/base.html' %}
 
 {% block content %}
-
-        <form method="POST" action="{% url 'createevent' %}" style="width: 75%;margin: 0 auto;margin-top: 4%;" >{% csrf_token %}
+   <h1 align="center">New Complaint</h1>
+        <form method="POST" action="{% url 'complaint' %}" style="width: 75%;margin: 0 auto;margin-top: 4%;" >{% csrf_token %}
   <div class="form-group">
-    <label for="title">Title:</label>
-    <input type="text" class="form-control" id="title" name="title" required>
+    <label for="eventTitle">Event Title:</label>
+    <input type="text" class="form-control" id="eventTitle" value="{{ eventTitle }}" disabled>
   </div>
 
+        <div class="form-group">
+    <label for="eventDate">Event Date:</label>
+    <input type="text" class="form-control" id="eventDate" value="{{ eventDate }}" disabled>
+  </div>
+
+    <input type="hidden" id="eventId" name="eventUUID" value="{{ eventUID }}">
  <div class="form-group">
-    <label for="description">Description</label>
-    <textarea class="form-control" id="description" rows="3" name="description"></textarea>
+
+    <label for="message">Message</label>
+    <textarea class="form-control" id="message" rows="3" name="message" required></textarea>
   </div>
 
-        <div class="form-group">
-    <label for="venue">Venue:</label>
-    <input type="text" class="form-control" id="venue" name="venue" required>
-  </div>
 
-        <div class="form-group">
-    <label for="date">Date:</label>
-    <input type="date" min="{{ mindate }}" max="2020-12-31" class="form-control" id="date" name="date" required>
-  </div>
-        <div class="form-group">
-    <label for="time">Time:</label>
-    <input type="text" class="form-control timepicker" id="time" name="time" name="time" required>
-  </div>
 
-         <div class="form-group">
-              <label for="helpers">Audience:</label>
-<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;" required>
-            {% for aud in audience %}
-        <option value="{{ aud.key }}">{{ aud.value }}</option>
-    {% endfor %}
-</select>
-         </div>
 
-            <div class="form-group">
-              <label for="helpers">Helpers:</label>
-<select class="form-control chosen-select" multiple="true" name="helpers" style="width:200px;">
-    {% for helper in helpers %}
-        <option value="{{ helper.username }}">{{ helper.fullname }} ({{ helper.username }})</option>
-    {% endfor %}
-</select>
-         </div>
+
+
 
   <button type="submit" class="btn btn-default">Submit</button>
 

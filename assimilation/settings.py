@@ -143,7 +143,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 ATTENDANCE_TAKER_GROUP_NAME = "attendanceTakers"
-
+SUPER_ADMINS_GROUP_NAME = "superadmins"
 GROUPS_MAP = {
     "hc_rk" : "Hall Council RK",
     "hc_rp" : "Hall Council RP",

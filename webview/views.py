@@ -99,41 +99,110 @@ def upcomingEvents(request) :
 
 @api_view(["GET","POST"])
 def markAttendance(request) :
-    if request.method == "GET" :
-        data = request.query_params
-        try :
-            eventUUID = data["eventId"]
-            event = db.getEventByUUID(eventUUID)
-            context = {
-                "attendanceList" : db.getAttendanceObjectListFromEvent(event),
-                "eventUUID" : eventUUID,
-                "eventTitle" : event.title
-            }
-            return render(request,"webview/markattendance.html",context=context)
-        except KeyError:
-            return  render(request, "Key error")
+    if request.user.has_perm('api.add_event') :
+        if request.method == "GET" :
+            data = request.query_params
+            try :
+                eventUUID = data["eventId"]
+                event = db.getEventByUUID(eventUUID)
+                context = {
+                    "attendanceList" : db.getAttendanceObjectListFromEvent(event),
+                    "eventUUID" : eventUUID,
+                    "eventTitle" : event.title
+                }
+                return render(request,"webview/markattendance.html",context=context)
+            except KeyError:
+                return  render(request, "Key error")
+        else :
+            data = request.data
+            try :
+                eventUUID = data["eventUid"]
+                userList = data["userList"]
+                print(userList)
+                db.markAttendanceByUserListAndEventUUID(eventUUID,userList)
+                context = {
+                    "swal": {
+                        "title": "Success",
+                        "text": "Attendance marked successfully",
+                        "icon": "success",
+                        "butText": "Close"
+                    },
+                    "swalFlag": True,
+                }
+                return render(request,'webview/index.html', context=context)
+            except Exception as e:
+                print(e)
+            print(data)
     else :
-        data = request.data
-        try :
-            eventUUID = data["eventUid"]
-            userList = data["userList"]
-            print(userList)
-            db.markAttendanceByUserListAndEventUUID(eventUUID,userList)
-            context = {
-                "swal": {
-                    "title": "Success",
-                    "text": "Attendance marked successfully",
-                    "icon": "success",
-                    "butText": "Close"
-                },
-                "swalFlag": True,
-            }
-            return render(request,'webview/index.html', context=context)
-        except Exception as e:
-            print(e)
-        print(data)
-
-
+        return render(request, "webview/errorPage.html", {
+            "d1": 4, "d2": 0, "d3": 1, "msg": "Sorry! You are not authorized for this."
+        })
+@login_required()
+@api_view(["GET","POST"])
 def complaint(request) :
-    if request.method == "GET" :
-        return render(request, "webview/complaint.html")
+    if request.user.has_perm('api.add_complaint') :
+        if request.method == "GET" :
+            data = request.query_params
+            try :
+                eventUUID = data["eventId"]
+                event = db.getEventByUUID(eventUUID)
+                return render(request,"webview/complaint.html", {"eventUID" : eventUUID, "eventTitle" : event.title, "eventDate" : event.datetime.strftime("%d/%m/%Y")})
+
+            except KeyError as e:
+                return render(request, "webview/errorPage.html", {
+                "d1" : 4, "d2" : 0 , "d3" : 0, "msg" : "Bad request! Try creating complaint from Upcoming Events page."
+            })
+        else :
+            #A complaint was submitted and now it will saved to database
+            data = request.data
+            print(data)
+            try :
+                eventUUID = data["eventUUID"]
+                message= data["message"]
+                event = db.getEventByUUID(eventUUID)
+                user = request.user
+                status = db.addNewComplaintByEventAndUser(message,event,user)
+                if status :
+                    context = {
+                        "swal": {
+                            "title": "Success",
+                            "text": "Complaint submitted successfully",
+                            "icon": "success",
+                            "butText": "Close"
+                        },
+                        "swalFlag": True,
+
+                    }
+                else :
+                    context = {
+                        "swal": {
+                            "title": "Error",
+                            "text": "Unable to submit complaint. Please try again.",
+                            "icon": "error",
+                            "butText": "Close"
+                        },
+                        "swalFlag": True,
+
+                    }
+            except KeyError :
+                context = {
+                    "swal": {
+                        "title": "Error",
+                        "text": "Unable to submit complaint. Please try again.",
+                        "icon": "error",
+                        "butText": "Close"
+                    },
+                    "swalFlag": True,
+
+                }
+            return render(request, "webview/index.html", context=context)
+            # try :
+            #     eventUUID = data["eventUUID"]
+
+    else :
+        return render(request, "webview/errorPage.html", {
+            "d1": 4, "d2": 0, "d3": 1, "msg": "Sorry! You are not authorized for this."
+        })
+
+def allComplaints(request):
+    pass

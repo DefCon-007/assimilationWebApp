@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User, Group
-from api.models import event, attendance
+from api.models import event, attendance, complaint
 from assimilation import settings
+from api.src import utils
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
     depGroupList = list()
@@ -82,6 +83,10 @@ def getEventFromUsername(username) :
     user = getUserFromUsername(username)
     formattedEventList = list()
     if user :
+        if utils.isMember(user,settings.SUPER_ADMINS_GROUP_NAME) :
+            eventList = event.objects.filter()
+            formattedEventList = getEventDictListFromEventList(eventList, "super")
+            return formattedEventList
         if user.has_perm('api.add_event') :
             #this implies user is a attendance taker
             eventList = user.owned_events.get_queryset()
@@ -127,6 +132,20 @@ def getEventByUUID(uid) :
     except Exception as e :
         print(e)
         return None
+
+#Complaints
+def addNewComplaintByEventAndUser(message,event,user) :
+    if event and user :
+        data = complaint()
+        data.message = message
+        data.save()
+        data.event.add(event)
+        data.user.add(user)
+        data.save()
+        return True
+    else :
+        return False
+
 
 #EXTRAS
 def getUserFromUsername(username) :

@@ -51,15 +51,15 @@
         <a class="nav-link" href="{% url 'upcomingevents' %}">Upcoming Events</a>
       </li>
 
-            {% if not perms.api.add_event  %}
+            {% if  perms.api.delete_complaint  %}
      <li class="nav-item" id="nav_complaint">
-        <a class="nav-link" href="{% url 'complaint' %}">Create complaint</a>
+        <a class="nav-link" href="{% url 'allComplaints' %}">Complaints</a>
       </li>
     {% endif %}
     <li class="nav-item" id="nav_password_change">
         <a class="nav-link" href="{% url 'password_change' %}">Change password</a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item ">
         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
       </li>
     </ul>

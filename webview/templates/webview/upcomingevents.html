@@ -16,9 +16,8 @@
                 <th>Your role</th>
                 {% endif %}
                 <th>Audience</th>
-            {% if perms.api.add_event  %}
                 <th></th>
-            {% endif %}
+
             </tr>
         </thead>
         <tbody>
@@ -41,6 +40,8 @@
                 <td>{{ event.audience }}</td>
                 {% if perms.api.add_event  %}
                 <td><button onclick=(location.href="{% url 'markattendance' %}?eventId={{ event.uid }}")>Mark attendance</button></td>
+                {% else %}
+                    <td><button onclick=(location.href="{% url 'complaint' %}?eventId={{ event.uid }}")>Create Complaint</button></td>
                 {% endif %}
                 </tr>
             {% endfor %}
