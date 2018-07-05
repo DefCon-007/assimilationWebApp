@@ -42,9 +42,48 @@
 </table>
 <script type="application/javascript">
     function changeComplaintStatus(button) {
-        var id = button.id;
-        let Baseurl = {% url 'changeComplaintStatus' %};
-        location.href= Baseurl + "?complaintId=" + id ;
+var cid = button.id;
+var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;
+        swal({
+  text: 'Are you sure you want to mark complaint as resolved? ',
+  button: {
+    text: "Yes!",
+    closeModal: false,
+  },
+})
+.then(name => {
+  if (!name) throw null;
+
+  return fetch(url);
+})
+.then(results => {
+  return results.json();
+})
+.then(json => {
+  const status = json.status;
+    console.log(status);
+  if (status) {
+   swal("Success", "Complaint successfully marked resolved", "success").then( function() {
+                           window.location.reload();
+                       }
+                   );
+  }
+  else {
+      swal("Oh crap!", "The request failed! Please try again.", "error");
+  }
+
+})
+.catch(err => {
+  if (err) {
+    swal("Oh crap!", "The request failed! Please try again.", "error");
+  } else {
+    swal.stopLoading();
+    swal.close();
+  }
+});
+
+        {#let Baseurl = {% url 'changeComplaintStatus' %};#}
+        {#location.href= Baseurl + "?complaintId=" + id ;#}
     }
 </script>
 

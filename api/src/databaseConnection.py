@@ -168,7 +168,14 @@ def getAllFormatedComplaintsDict() :
             "complaintId" : c.id
         })
     return allComplaintFormattedDictList
-
+def changeComplaintStatusByComplaintId(complaintId) :
+    specificComplaint = complaint.objects.get(id=complaintId)
+    if specificComplaint :
+        specificComplaint.resolutionStatus = True
+        specificComplaint.save()
+        return True
+    else :
+        return False
 #EXTRAS
 def getUserFromUsername(username) :
     try:

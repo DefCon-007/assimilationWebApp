@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from api.src import utils
+from django.http import JsonResponse
 import traceback
 from api.src import databaseConnection as db
 # Create your views here.
@@ -204,9 +205,23 @@ def complaint(request) :
             "d1": 4, "d2": 0, "d3": 1, "msg": "Sorry! You are not authorized for this."
         })
 
+@api_view(["GET"])
 def allComplaints(request):
     allComplaints = db.getAllFormatedComplaintsDict()
     return  render(request,"webview/allcomplaints.html", {
         "allComplaints" : allComplaints
     })
     pass
+
+@api_view(["GET"])
+def changeComplaintStatus(request) :
+    try :
+        data = request.query_params
+        status = db.changeComplaintStatusByComplaintId(data['complaintId'])
+        if status :
+            return JsonResponse({"status": True}, status=200)
+        else :
+            return JsonResponse({"status": False}, status=200)
+    except Exception as e :
+        print(e)
+        return JsonResponse({"status": False}, status=200)
