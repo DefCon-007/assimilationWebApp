@@ -26,7 +26,7 @@ config.read(BASE_DIR + "/settingsConfigFile.ini")
 SECRET_KEY = 'so*0-@g9j!m%+&34f9a4iou-1b4$e-%ywtvawm@f!&o2ftx^nk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.getboolean("django","DEBUG")
 
 ALLOWED_HOSTS = ['*']
 
