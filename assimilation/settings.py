@@ -142,6 +142,8 @@ LOGOUT_REDIRECT_URL = "login"
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+SECURE_SSL_REDIRECT = config.getboolean("SSL_REDIRECT")
+
 ATTENDANCE_TAKER_GROUP_NAME = "attendanceTakers"
 SUPER_ADMINS_GROUP_NAME = "superadmins"
 GROUPS_MAP = {
