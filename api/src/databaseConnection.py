@@ -30,6 +30,8 @@ def getHelpersFromGroupName(grpNameList):
     for grpName in grpNameList :
         if grpName == settings.ATTENDANCE_TAKER_GROUP_NAME :
             continue
+        if grpName == settings.SUPER_ADMINS_GROUP_NAME :
+            return allAdmins
         try :
             userList.extend(allAdmins.filter(groups__name=grpName))
         except ValueError :

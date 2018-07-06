@@ -85,6 +85,9 @@ var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;
         {#let Baseurl = {% url 'changeComplaintStatus' %};#}
         {#location.href= Baseurl + "?complaintId=" + id ;#}
     }
+
+      var d = document.getElementById("nav_complaint");
+    d.className += " active";
 </script>
 
 {% endblock %}
