@@ -95,8 +95,10 @@ def getEventFromUsername(username) :
     formattedEventList = list()
     if user :
         if utils.isMember(user,settings.SUPER_ADMINS_GROUP_NAME) :
-            eventList = event.objects.filter()
-            formattedEventList = getEventDictListFromEventList(eventList, "super")
+            eventListOwner = user.owned_events.get_queryset()
+            formattedEventList.extend(getEventDictListFromEventList(eventListOwner, "Owner"))
+            eventList = event.objects.filter().exclude(createdBy=user)
+            formattedEventList .extend(getEventDictListFromEventList(eventList, ""))
             return formattedEventList
         if user.has_perm('api.add_event') :
             #this implies user is a attendance taker
@@ -121,7 +123,10 @@ def getEventDictListFromEventList(eventList,role) :
             helperList.append(f"{helper.get_full_name()} ({helper.username})")
         audienceList=list()
         for audience in event.audience.all() :
-            audienceList.append(audience.name)
+            try :
+                audienceList.append(settings.GROUPS_MAP[audience.name])
+            except Exception as e:
+                settings.LOGGER.exception(f"Following exception occured while getting mapped audience name for upcoming event\n{e}")
         listToReturn.append({
         "title": event.title,
         "description": event.description,

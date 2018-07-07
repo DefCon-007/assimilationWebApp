@@ -119,7 +119,6 @@ def createEvent(request,newContext={}) :
 
 @api_view(["GET"])
 def upcomingEvents(request) :
-    print(request.user)
     eventsList = db.getEventFromUsername(request.user.username)
     return render(request, "webview/upcomingevents.html", {"eventsList":eventsList})
 
