@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from api.src import utils
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import traceback
 from api.src import databaseConnection as db
 # Create your views here.
@@ -30,11 +30,10 @@ def index(request) :
 
 @api_view(["GET","POST"])
 @login_required()
-def createEvent(request) :
-    if request.user.has_perm('api.add_event'):
+def createEvent(request,newContext={}) :
+    if utils.isMember(request.user,settings.ATTENDANCE_TAKER_GROUP_NAME) :
         if request.method == "POST" :
             data = request.data
-            print(request.data)
             try :
                 title = data["title"]
                 description = data["description"]
@@ -43,39 +42,61 @@ def createEvent(request) :
                 time = data["time"]
                 datetimestring = date + "|"+time
                 datetimeobject = datetime.datetime.strptime(datetimestring,"%Y-%m-%d|%H : %M")
-                audience = request.POST.getlist('audience')
+                audience = data["audience"]
                 try :
                     helpers = request.POST.getlist('helpers')
                 except KeyError :
+                    #No need to log this as it shows no helpers were needed
                     helpers = None
-                db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject, audiences=audience, helpers=helpers, createdBy=request.user)
-                context = {
-                    "swal" :{
-                        "title" : "Success",
-                        "text" : "Event created successfully",
-                        "icon" : "success",
-                        "butText" : "Close"
-                    },
-                    "swalFlag" : True,
+                status = db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject, audience=audience, helpers=helpers, createdBy=request.user)
+                if status :
+                    context = {
+                        "swal" :{
+                            "title" : "Success",
+                            "text" : "Event created successfully",
+                            "icon" : "success",
+                            "butText" : "Close"
+                        },
+                        "swalFlag" : True,
 
-                }
-                return render(request,"webview/createevent.html", context=context)
+                    }
+                    return render(request,"webview/index.html", context=context)
+                else :
+                    #As data was not saved in the database, user is redirected to the create event page with same data as he/she entered already filled
+                    context = {
+                        "swal": {
+                            "title": "Error",
+                            "text": "Unable to create event. Please try again!",
+                            "icon": "error",
+                            "butText": "Close"
+                        },
+                        "swalFlag": True,
+                        "fillFormFlag" : True,
+                        "title" : title,
+                        "description" : description,
+                        "venue" : venue,
+                        "date" : date,
+                        "time" : time,
+                    }
+                    djangoRequest = request._request
+                    djangoRequest.method = "GET"
+                    resp = createEvent(djangoRequest,context)
+                    return resp
             except Exception as e :
-                print(f"webview:createEvent:Following exeception occured.\n{e}\n{traceback.format_exc()}")
+                LOGGER.exception(f"Following exeception occured in post request of createEvent.\n{e}")
+                return custom500ErrorPage(request, None)
+                # print(f"webview:createEvent:Following exeception occured.\n{e}\n{traceback.format_exc()}")
 
         else :
             grpNameList = list()
-            grpNameMapped = list()
+            grpNameMappedList = list()
             for g in request.user.groups.all():
                 grpNameList.append(g.name)
                 try :
-                    grpNameMapped.append({
-                        "value" : settings.GROUPS_MAP[g.name],
-                        "key" : g.name
-                    })
-                except :
-                    print(f"Exception for {g.name}")
-            print(grpNameList)
+                    mapName = settings.GROUPS_MAP[g.name]
+                    grpNameMappedList.extend([mapName,g.name])
+                except Exception as e:
+                    pass
             validHelpersList = db.getHelpersFromGroupName(grpNameList)
             helperListForView = list()
             for helper in validHelpersList :
@@ -86,9 +107,9 @@ def createEvent(request) :
             #Function to render create template page
             context={"mindate":datetime.datetime.today().strftime('%Y-%m-%d'),
                      "helpers" : helperListForView,
-                     "audience" : grpNameMapped,
+                     "audience" : grpNameMappedList,
                      }
-
+            context.update(newContext)
             return render(request, 'webview/createevent.html', context=context)
     else :
         return render(request, 'webview/errorPage.html', {

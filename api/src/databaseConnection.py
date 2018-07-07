@@ -39,10 +39,11 @@ def getHelpersFromGroupName(grpNameList):
     return userList
 
 #Attendance
-def addStudentsInAttendanceTable(audienceList,event) :
-    userList = list()
-    for audience in audienceList :
-        userList.extend(User.objects.filter(groups__name='student').filter(groups__name=audience))
+def addStudentsInAttendanceTable(audience,event) :
+    # userList = list()
+    userList = User.objects.filter(groups__name='student').filter(groups__name=audience)
+    # for audience in audienceList :
+    #     userList.extend(User.objects.filter(groups__name='student').filter(groups__name=audience))
     for user in userList :
         attendanceObject = attendance()
         attendanceObject.event = event
@@ -64,25 +65,28 @@ def markAttendanceByUserListAndEventUUID(uid,userList):
 
 
 #EVENT
-def addNewEvent(title,description,venue,datetimeobj,audiences,helpers,createdBy) :
+def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) :
     data = event()
     data.title = title
     data.description = description
     data.venue = venue
     data.datetime = datetimeobj
     data.createdBy = createdBy
-    data.save()
-    for audience in audiences :
+    try :
         grp = Group.objects.get(name=audience)
+        data.save()
         data.audience.add(grp)
+    except Exception as e:
+        settings.LOGGER.exception(f"While getting group for {audience} following exception occurred \n{e}")
+        return False
     if helpers :
         for helper in helpers :
             user = getUserFromUsername(helper)
             if user :
                 data.helpers.add(user)
     data.save()
-    addStudentsInAttendanceTable(audiences,data)
-
+    addStudentsInAttendanceTable(audience,data)
+    return True
 def getEventFromUsername(username) :
     user = getUserFromUsername(username)
     formattedEventList = list()

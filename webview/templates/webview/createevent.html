@@ -39,16 +39,17 @@
   </div>
         <div class="form-group">
     <label for="time">Time:</label>
-    <input type="text" class="form-control timepicker" id="time" name="time" name="time" required>
+    <input type="text" class="form-control timepicker" id="time" name="time" required>
   </div>
-
          <div class="form-group">
-              <label for="helpers">Audience:</label>
-<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;"  required>
-            {% for aud in audience %}
-        <option value="{{ aud.key }}">{{ aud.value }}</option>
-    {% endfor %}
-</select>
+              <label for="audinece">Audience:</label>
+             <input type="text" class="form-control"  value="{{ audience.0 }}" disabled>
+             <input type="hidden" id="audience" name="audience" value="{{ audience.1}}">
+{#<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;"  disabled>#}
+{#            {% for aud in audience %}#}
+{#        <option value="{{ aud.key }}">{{ aud.value }}</option>#}
+{#    {% endfor %}#}
+{#</select>#}
          </div>
 
             <div class="form-group">
@@ -83,6 +84,25 @@
     var d = document.getElementById("nav_createevent");
     d.className += " active";
     </script>
+
+    {% if fillFormFlag != None %}
+        <script type="application/javascript">
+            titleElem = document.getElementById("title");
+            titleElem.value = "{{ title }}";
+
+            descriptionElem = document.getElementById("description");
+            descriptionElem.value = "{{ description }}";
+
+            venueElem = document.getElementById("venue");
+            venueElem.value = "{{ venue }}";
+
+            dateElem = document.getElementById("date");
+            dateElem.value = "{{ date }}";
+
+            timeElem = document.getElementById("time");
+            timeElem.value = "{{ time }}";
+        </script>
+    {% endif %}
 
 {% endblock %}
 
