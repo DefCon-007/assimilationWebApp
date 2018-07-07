@@ -1,6 +1,6 @@
 {% extends 'webview/base.html' %}
 {% block content %}
-<table class="table table-hover table-bordered table-striped">
+<table class="table table-hover table-bordered table-striped" id="table">
         <thead>
             <tr>
                 <th>S.no.</th>
@@ -41,6 +41,14 @@
         </tbody>
 </table>
 <script type="application/javascript">
+    $(document).ready(function() {
+    $('#table').DataTable({
+        "order": [[ 3, "desc" ],[ 4, "desc" ] ],
+        stateSave: true,
+        "paging":   false,
+        "info":     false,
+    });
+} );
     function changeComplaintStatus(button) {
 var cid = button.id;
 var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;

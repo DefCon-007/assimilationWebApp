@@ -1,6 +1,6 @@
 {% extends 'webview/base.html' %}
 {% block content %}
-<table class="table table-hover table-bordered table-striped">
+<table class="table table-hover table-bordered table-striped" id="table">
         <thead>
             <tr>
                 <th>S.no.</th>
@@ -49,6 +49,14 @@
 <script type="application/javascript">
     var d = document.getElementById("nav_upcomingevent");
     d.className += " active";
+    $(document).ready(function() {
+    $('#table').DataTable({
+        "order": [[ 3, "desc" ],[ 4, "desc" ] ],
+        stateSave: true,
+        "paging":   false,
+        "info":     false,
+    });
+} );
 </script>
 
 {% endblock %}

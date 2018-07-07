@@ -34,6 +34,15 @@
 
     <button onclick="sendNewAttendance()" style="margin:auto;display:block">Submit</button>
 <script type="application/javascript">
+    $(document).ready(function() {
+    $('#table').DataTable({
+        "order": [[ 1, "asc" ]],
+        stateSave: true,
+        "paging":   false,
+        "info":     false,
+        "searching" : false,
+    });
+} );
 function sendNewAttendance() {
     let eventUUID = "{{ eventUUID }}";
     var checkedItemsList = {};
