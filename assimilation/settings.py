@@ -198,4 +198,5 @@ GROUPS_MAP = {
     "hc_mmm" : "Hall Council MMM",
     "dep_ag" : "Department AG",
     "dep_ar" : "Department AR",
+    SUPER_ADMINS_GROUP_NAME : "All Students",
 }

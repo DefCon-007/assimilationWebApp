@@ -41,7 +41,10 @@ def getHelpersFromGroupName(grpNameList):
 #Attendance
 def addStudentsInAttendanceTable(audience,event) :
     # userList = list()
-    userList = User.objects.filter(groups__name='student').filter(groups__name=audience)
+    if audience == settings.SUPER_ADMINS_GROUP_NAME :
+        userList = User.objects.filter(groups__name='student')
+    else :
+        userList = User.objects.filter(groups__name='student').filter(groups__name=audience)
     # for audience in audienceList :
     #     userList.extend(User.objects.filter(groups__name='student').filter(groups__name=audience))
     for user in userList :

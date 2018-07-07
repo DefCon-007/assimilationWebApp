@@ -31,7 +31,7 @@ def index(request) :
 @api_view(["GET","POST"])
 @login_required()
 def createEvent(request,newContext={}) :
-    if utils.isMember(request.user,settings.ATTENDANCE_TAKER_GROUP_NAME) :
+    if utils.isMember(request.user,settings.ATTENDANCE_TAKER_GROUP_NAME) or utils.isMember(request.user,settings.SUPER_ADMINS_GROUP_NAME):
         if request.method == "POST" :
             data = request.data
             try :
