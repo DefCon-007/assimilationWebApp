@@ -75,10 +75,11 @@ def addNewEvent(title,description,venue,datetimeobj,audiences,helpers,createdBy)
     for audience in audiences :
         grp = Group.objects.get(name=audience)
         data.audience.add(grp)
-    for helper in helpers :
-        user = getUserFromUsername(helper)
-        if user :
-            data.helpers.add(user)
+    if helpers :
+        for helper in helpers :
+            user = getUserFromUsername(helper)
+            if user :
+                data.helpers.add(user)
     data.save()
     addStudentsInAttendanceTable(audiences,data)
 

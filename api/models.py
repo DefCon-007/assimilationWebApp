@@ -8,7 +8,7 @@ class event(models.Model) :
     datetime = models.DateTimeField()
     audience = models.ManyToManyField(Group, related_name="group_events")
     # creator = models.FOr
-    helpers = models.ManyToManyField(User, related_name="manytomanyevents")
+    helpers = models.ManyToManyField(User, related_name="manytomanyevents", blank=True, null=True)
     createdBy = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="owned_events")
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 class attendance(models.Model) :

@@ -23,3 +23,9 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/', include('api.urls'))
 ]
+
+
+handler404 = "webview.views.custom404ErrorPage"
+handler500 = "webview.views.custom500ErrorPage"
+handler400 = "webview.views.custom400ErrorPage"
+handler503 = "webview.views.custom503ErrorPage"

@@ -9,6 +9,7 @@ from api.src import databaseConnection as db
 # Create your views here.
 from rest_framework.decorators import api_view
 from assimilation import settings
+
 @login_required()
 def index(request) :
     print(request.user)
@@ -43,7 +44,10 @@ def createEvent(request) :
                 datetimestring = date + "|"+time
                 datetimeobject = datetime.datetime.strptime(datetimestring,"%Y-%m-%d|%H : %M")
                 audience = request.POST.getlist('audience')
-                helpers = request.POST.getlist('helpers')
+                try :
+                    helpers = request.POST.getlist('helpers')
+                except KeyError :
+                    helpers = None
                 db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject, audiences=audience, helpers=helpers, createdBy=request.user)
                 context = {
                     "swal" :{
@@ -225,3 +229,24 @@ def changeComplaintStatus(request) :
     except Exception as e :
         print(e)
         return JsonResponse({"status": False}, status=200)
+
+
+def custom404ErrorPage(request,exception) :
+    return render(request, "webview/errorPage.html", {
+        "d1": 4, "d2": 0, "d3": 4, "msg": "Sorry! Page not found."
+    }, status=404)
+
+def custom500ErrorPage(request,exception) :
+    return render(request, "webview/errorPage.html", {
+        "d1": 5, "d2": 0, "d3": 0, "msg": "Sorry! Server error. Please try again"
+    }, status=500)
+
+def custom403ErrorPage(request,exception) :
+    return render(request, "webview/errorPage.html", {
+        "d1": 4, "d2": 0, "d3": 3, "msg": "Sorry! You are not authorized for this"
+    }, status=403)
+
+def custom400ErrorPage(request,exception) :
+    return render(request, "webview/errorPage.html", {
+        "d1": 4, "d2": 0, "d3": 0, "msg": "Sorry! Bad request"
+    }, status=400)

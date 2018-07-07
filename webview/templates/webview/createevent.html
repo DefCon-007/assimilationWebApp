@@ -44,7 +44,7 @@
 
          <div class="form-group">
               <label for="helpers">Audience:</label>
-<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;" required>
+<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;"  required>
             {% for aud in audience %}
         <option value="{{ aud.key }}">{{ aud.value }}</option>
     {% endfor %}
