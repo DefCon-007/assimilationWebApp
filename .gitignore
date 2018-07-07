@@ -213,3 +213,5 @@ ENV/
 
 #Settings file 
 settingsConfigFile.ini
+#Log file 
+./assimilation.log

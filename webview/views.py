@@ -9,10 +9,10 @@ from api.src import databaseConnection as db
 # Create your views here.
 from rest_framework.decorators import api_view
 from assimilation import settings
-
+from assimilation.settings import  LOGGER
 @login_required()
 def index(request) :
-    print(request.user)
+    LOGGER.info("Test log in index")
     grpList = list()
     for g in request.user.groups.all():
         try :

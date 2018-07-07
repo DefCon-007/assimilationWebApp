@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import configparser
-
+import json
+import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -74,6 +75,48 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+   'version': 1,
+   'disable_existing_loggers': False,
+   'formatters': {
+      'django': {
+         'format':'django:%(asctime)s %(module)s Line:%(lineno)d %(message)s',
+       },
+    'django-local': {
+         'format':'%(module)s Line:%(lineno)d %(message)s',
+       },
+    },
+
+   'handlers': {
+      'logging.handlers.SysLogHandler': {
+         'level': 'DEBUG',
+         'class': 'logging.handlers.SysLogHandler',
+         'facility': 'local7',
+         'formatter': 'django',
+         'address' : '/dev/log',
+       },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'django-local',
+        },
+   },
+
+   'loggers': {
+      'loggly_logs':{
+         'handlers': ['logging.handlers.SysLogHandler'],
+         'propagate': True,
+         'format':'django:%(asctime)s %(module)s Line:%(lineno)d %(message)s',
+         'level': 'DEBUG',
+       },
+    'local': {
+            'handlers': ['console'],
+            'format':'%(module)s Line:%(lineno)d %(message)s',
+            'level':"INFO",
+        },
+    }
+}
+LOGGER = logging.getLogger(config.get("django","LOGGER"))
 
 WSGI_APPLICATION = 'assimilation.wsgi.application'
 
