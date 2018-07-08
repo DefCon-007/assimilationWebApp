@@ -1,5 +1,10 @@
 {% extends 'webview/base.html' %}
+{% block head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
+    {% endblock %}
+
 {% block content %}
+
 <table class="table table-hover table-bordered table-striped" id="table">
         <thead>
             <tr>
@@ -41,6 +46,9 @@
         </tbody>
 </table>
 <script type="application/javascript">
+
+
+
     $(document).ready(function() {
     $('#table').DataTable({
         "order": [[ 3, "desc" ],[ 4, "desc" ] ],
@@ -49,11 +57,12 @@
         "info":     false,
     });
 } );
-    function changeComplaintStatus(button) {
+function changeComplaintStatus(button) {
 var cid = button.id;
 var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;
         swal({
   text: 'Are you sure you want to mark complaint as resolved? ',
+            icon:"warning",
   button: {
     text: "Yes!",
     closeModal: false,
@@ -61,14 +70,13 @@ var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;
 })
 .then(name => {
   if (!name) throw null;
-
   return fetch(url);
 })
 .then(results => {
   return results.json();
 })
 .then(json => {
-  const status = json.status;
+  const status = json.statusbool;
     console.log(status);
   if (status) {
    swal("Success", "Complaint successfully marked resolved", "success").then( function() {
@@ -79,7 +87,6 @@ var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;
   else {
       swal("Oh crap!", "The request failed! Please try again.", "error");
   }
-
 })
 .catch(err => {
   if (err) {
@@ -89,10 +96,12 @@ var url = "{% url 'changeComplaintStatus' %}?complaintId=" + cid;
     swal.close();
   }
 });
-
         {#let Baseurl = {% url 'changeComplaintStatus' %};#}
         {#location.href= Baseurl + "?complaintId=" + id ;#}
     }
+
+        {#let Baseurl = {% url 'changeComplaintStatus' %};#}
+        {#location.href= Baseurl + "?complaintId=" + id ;#}
 
       var d = document.getElementById("nav_complaint");
     d.className += " active";

@@ -1,17 +1,19 @@
 import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from api.src import utils
 from django.http import JsonResponse, HttpResponse
 import traceback
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from api.src import databaseConnection as db
 # Create your views here.
 from rest_framework.decorators import api_view
 from assimilation import settings
 from assimilation.settings import  LOGGER
 @login_required()
-def index(request) :
+def index(request,newContext={}) :
     LOGGER.info("Test log in index")
     grpList = list()
     for g in request.user.groups.all():
@@ -23,8 +25,7 @@ def index(request) :
 
         'grpList' : grpList
     }
-
-
+    context.update(newContext)
     return  render(request,'webview/index.html',context)
 
 
@@ -243,13 +244,42 @@ def changeComplaintStatus(request) :
         data = request.query_params
         status = db.changeComplaintStatusByComplaintId(data['complaintId'])
         if status :
-            return JsonResponse({"status": True}, status=200)
+            return JsonResponse({"statusbool": True}, status=200)
         else :
-            return JsonResponse({"status": False}, status=200)
+            return JsonResponse({"statusbool": False}, status=200)
     except Exception as e :
         print(e)
-        return JsonResponse({"status": False}, status=200)
+        return JsonResponse({"statusbool": False}, status=200)
 
+@api_view(["GET","POST"])
+def changePassword(request) :
+    context = dict()
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        print(form)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            resp = index(request._request, {
+                        "swal": {
+                            "title": "Success",
+                            "text": "Password changed successfully",
+                            "icon": "success",
+                            "butText": "Close"
+                        },
+                        "swalFlag": True,
+
+                    })
+            return resp
+            # messages.success(request, 'Your password was successfully updated!')
+            # return redirect('changepassword')
+        else:
+            context["form"] = form
+            # messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+        context["form"] = form
+    return render(request, 'webview/changepassword.html', context)
 
 def custom404ErrorPage(request,exception) :
     return render(request, "webview/errorPage.html", {
