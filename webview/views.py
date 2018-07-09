@@ -12,6 +12,7 @@ from api.src import databaseConnection as db
 from rest_framework.decorators import api_view
 from assimilation import settings
 from assimilation.settings import  LOGGER
+from django.urls import reverse
 @login_required()
 def index(request,newContext={}) :
     LOGGER.info("Test log in index")
@@ -34,8 +35,8 @@ def index(request,newContext={}) :
 def createEvent(request,newContext={}) :
     if utils.isMember(request.user,settings.ATTENDANCE_TAKER_GROUP_NAME) or utils.isMember(request.user,settings.SUPER_ADMINS_GROUP_NAME):
         if request.method == "POST" :
-            data = request.data
             try :
+                data = request.data
                 title = data["title"]
                 description = data["description"]
                 venue = data["venue"]
@@ -98,13 +99,8 @@ def createEvent(request,newContext={}) :
                     grpNameMappedList.extend([mapName,g.name])
                 except Exception as e:
                     pass
-            validHelpersList = db.getHelpersFromGroupName(grpNameList)
-            helperListForView = list()
-            for helper in validHelpersList :
-                helperListForView.append({
-                    "username" : helper.username,
-                    "fullname" : helper.get_full_name()
-                })
+            validHelpersList = db.getHelpersFromGroupName(grpNameList,request.user.username)
+            helperListForView = utils.getHelperFormattedListFromQuerySet(validHelpersList)
             #Function to render create template page
             context={"mindate":datetime.datetime.today().strftime('%Y-%m-%d'),
                      "helpers" : helperListForView,
@@ -119,9 +115,11 @@ def createEvent(request,newContext={}) :
 
 
 @api_view(["GET"])
-def upcomingEvents(request) :
+def upcomingEvents(request,newContext={}) :
     eventsList = db.getEventFromUsername(request.user.username)
-    return render(request, "webview/upcomingevents.html", {"eventsList":eventsList})
+    context = {"eventsList":eventsList}
+    context.update(newContext)
+    return render(request, "webview/upcomingevents.html", context=context)
 
 @api_view(["GET","POST"])
 def markAttendance(request) :
@@ -281,6 +279,119 @@ def changePassword(request) :
         context["form"] = form
     return render(request, 'webview/changepassword.html', context)
 
+
+@api_view(["GET","POST"])
+def editevent(request) :
+    if utils.isMember(request.user, settings.ATTENDANCE_TAKER_GROUP_NAME) :
+        if request.method == "POST" :
+            data = request.data
+            try :
+                eventId = data["eventId"]
+                title = data["title"]
+                description = data["description"]
+                venue = data["venue"]
+                date=data["date"]
+                time = data["time"]
+                datetimestring = date + "|"+time
+                datetimeobject = datetime.datetime.strptime(datetimestring,"%Y-%m-%d|%H : %M")
+                try :
+                    helpers = request.POST.getlist('helpers')
+                except KeyError :
+                    #No need to log this as it shows no helpers were needed
+                    helpers = None
+                print(helpers)
+                status = db.editEvent(eventId=eventId,title=title, description=description, venue=venue, datetimeobj=datetimeobject, helpersList=helpers)
+                if status :
+                    context = {
+                        "swal" :{
+                            "title" : "Success",
+                            "text" : "Event updated successfully",
+                            "icon" : "success",
+                            "butText" : "Close"
+                        },
+                        "swalFlag" : True,
+
+                    }
+                else:
+                    context = {
+                        "swal": {
+                            "title": "Error",
+                            "text": "Unable to update event. Please try again!",
+                            "icon": "error",
+                            "butText": "Close"
+                        },
+                        "swalFlag": True,
+
+                    }
+                djangoRequest = request._request
+                djangoRequest.method = "GET"
+                print(f"{djangoRequest.path} {djangoRequest.path_info} {djangoRequest.get_full_path()}")
+                djangoRequest.path= djangoRequest.path.replace("editevent","upcomingevent")
+                djangoRequest.path_info = djangoRequest.path_info.replace("editevent", "upcomingevent")
+                print(f"{djangoRequest.path} {djangoRequest.path_info} {djangoRequest.get_full_path()}")
+                resp = upcomingEvents(djangoRequest,context)
+                return resp
+
+
+            except Exception as e :
+                LOGGER.exception(f"Following exeception occured in post request of createEvent.\n{e}")
+                return custom500ErrorPage(request, None)
+                # print(f"webview:createEvent:Following exeception occured.\n{e}\n{traceback.format_exc()}")
+
+        else :
+            try :
+                data = request.query_params
+                eventId = data["eventId"]
+                event = db.getEventByUUID(eventId)
+                if event :
+                    if event.createdBy == request.user or event.helpers.all().filter(username=request.user.username) :
+                        creator = event.createdBy
+                        helpers = event.helpers.all()
+                        selectedHelperUserNameList = list()
+                        for d in helpers :
+                            selectedHelperUserNameList.append(d.get_username())
+                        grpNameList = list()
+                        grpNameMappedList = list()
+                        for g in request.user.groups.all():
+                            grpNameList.append(g.name)
+                            try:
+                                mapName = settings.GROUPS_MAP[g.name]
+                                grpNameMappedList.extend([mapName, g.name])
+                            except Exception as e:
+                                pass
+                        validHelpersList = db.getHelpersFromGroupName(grpNameList,request.user.username)
+                        helperListForView = utils.getHelperFormattedListFromQuerySet(validHelpersList)
+                        for data in helperListForView :
+                            if data["username"] in selectedHelperUserNameList :
+                                data["check"] = True
+                            else :
+                                data["check"] = False
+                        # Function to render create template page
+                        context = {"mindate": datetime.datetime.today().strftime('%Y-%m-%d'),
+                                   "helpers": helperListForView,
+                                   "audience": grpNameMappedList,
+                                   "creator" : f"{creator.get_full_name()} ({creator.get_username()})",
+                                   "eventId" : eventId,
+                                   "fillFormFlag": True,
+                                   "title": event.title,
+                                   "description": event.description,
+                                   "venue": event.venue,
+                                   "date": event.datetime.strftime('%Y-%m-%d'),
+                                   "time": event.datetime.strftime('%H : %M'),
+                                   }
+                        return render(request, 'webview/editevent.html', context=context)
+
+                    else :
+                        return custom403ErrorPage(request,None)
+                else :
+                    settings.LOGGER.debug(f"Unknown event with event id {eventId} requested to edit.")
+                    return render(request,"webview/errorPage.html",{
+            "d1": 4, "d2": 0, "d3": 4, "msg": "Sorry! Event not found."
+        } )
+            except Exception as e :
+                settings.LOGGER.exception(f"In editevent following exception occured while unpacking data from request {e}")
+    else :
+        return custom403ErrorPage(request,None)
 def custom404ErrorPage(request,exception) :
     return render(request, "webview/errorPage.html", {
         "d1": 4, "d2": 0, "d3": 4, "msg": "Sorry! Page not found."

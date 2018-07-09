@@ -20,5 +20,15 @@ def authenticateCredentials(username,password) :
 def isMember(user, groupName) :
     return user.groups.filter(name=groupName).exists()
 
+
+def getHelperFormattedListFromQuerySet(helperList) :
+    formattedHelperList = list()
+    for helper in helperList:
+        formattedHelperList.append({
+            "username": helper.username,
+            "fullname": helper.get_full_name()
+        })
+    return formattedHelperList
+
 # def addNewEvent() :
 #

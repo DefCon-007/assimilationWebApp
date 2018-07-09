@@ -37,8 +37,14 @@
                 <td>{{ event.role }}</td>
                 {% endif %}
                 <td>{{ event.audience }}</td>
+
                 {% if perms.api.add_event  %}
-                <td><button onclick=(location.href="{% url 'markattendance' %}?eventId={{ event.uid }}")>Mark attendance</button></td>
+                <td><button onclick=(location.href="{% url 'markattendance' %}?eventId={{ event.uid }}")>Mark attendance</button><br>
+                <button onclick=(location.href="{% url 'editevent' %}?eventId={{ event.uid }}")>Edit Event</button>
+                {% if event.deleteFlag %}
+                <button onclick=deleteEvent(this) id="{{ event.uid }}">Delete Event</button>
+                {% endif %}
+                </td>
                 {% else %}
                     <td><button onclick=(location.href="{% url 'complaint' %}?eventId={{ event.uid }}")>Create Complaint</button></td>
                 {% endif %}
@@ -46,6 +52,7 @@
             {% endfor %}
         </tbody>
 </table>
+
 <script type="application/javascript">
     var d = document.getElementById("nav_upcomingevent");
     d.className += " active";
@@ -57,6 +64,11 @@
         "info":     false,
     });
 } );
+
+
+    function deleteEvent(button) {
+        console.log(button.id);
+    }
 </script>
 
 {% endblock %}

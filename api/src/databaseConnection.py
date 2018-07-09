@@ -19,14 +19,14 @@ def getListofAllDepAndHallGroups() :
             pass
     return depGroupList,hallGroupList
 
-def getHelpersFromGroupName(grpNameList):
+def getHelpersFromGroupName(grpNameList,requestUserName):
     """
     Returns a list of User objects from the groups supplied and admin group
     :param grpNameList: A list of group names
     :return:
     """
     userList = list()
-    allAdmins = User.objects.filter(groups__name=settings.ATTENDANCE_TAKER_GROUP_NAME)
+    allAdmins = User.objects.filter(groups__name=settings.ATTENDANCE_TAKER_GROUP_NAME).exclude(username=requestUserName)
     for grpName in grpNameList :
         if grpName == settings.ATTENDANCE_TAKER_GROUP_NAME :
             continue
@@ -90,6 +90,26 @@ def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) 
     data.save()
     addStudentsInAttendanceTable(audience,data)
     return True
+
+def editEvent(eventId,title,description,venue,datetimeobj,helpersList) :
+    try :
+        data = event.objects.get(id=eventId)
+        data.title = title
+        data.description = description
+        data.venue = venue
+        data.datetime = datetimeobj
+        data.helpers.clear()
+        data.save()
+        if helpersList :
+            for helper in helpersList :
+                user = getUserFromUsername(helper)
+                if user :
+                    data.helpers.add(user)
+        data.save()
+        return True
+    except Exception as e :
+        settings.LOGGER.exception(f"While editing event({eventId}) following exception occured\n{e}")
+        return False
 def getEventFromUsername(username) :
     user = getUserFromUsername(username)
     formattedEventList = list()
@@ -117,7 +137,7 @@ def getEventFromUsername(username) :
 def getEventDictListFromEventList(eventList,role) :
     listToReturn = list()
     for event in eventList:
-        datetime = event.datetime
+        Eventdatetime = event.datetime
         helperList = list()
         for helper in event.helpers.all():
             helperList.append(f"{helper.get_full_name()} ({helper.username})")
@@ -127,17 +147,22 @@ def getEventDictListFromEventList(eventList,role) :
                 audienceList.append(settings.GROUPS_MAP[audience.name])
             except Exception as e:
                 settings.LOGGER.exception(f"Following exception occured while getting mapped audience name for upcoming event\n{e}")
+        if Eventdatetime > datetime.datetime.now() :
+            deleteFlag = True
+        else :
+            deleteFlag = False
         listToReturn.append({
         "title": event.title,
         "description": event.description,
         "venue": event.venue,
         "audience": ",".join(audienceList),
-        "date": datetime.strftime('%d/%m/%Y'),
-        "time": datetime.strftime('%H:%M'),
+        "date": Eventdatetime.strftime('%d/%m/%Y'),
+        "time": Eventdatetime.strftime('%H:%M'),
         "createdBy": f"{event.createdBy.get_full_name()} ({event.createdBy.username})",
         "helpers": helperList,
         "role": role,
-        "uid" : str(event.id)
+        "uid" : str(event.id),
+        "deleteFlag" : deleteFlag
         })
     return listToReturn
 

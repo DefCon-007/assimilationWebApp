@@ -1,0 +1,120 @@
+{% extends 'webview/base.html' %}
+
+{% block content %}
+
+{#        {%  if swalFlag %}#}
+{#        <script type="application/javascript">#}
+{#                      swal({#}
+{#                      title: "{{ swal.title }}",#}
+{#                      text: "{{ swal.text }}",#}
+{#                      icon: "{{ swal.icon }}",#}
+{#                      button: "{{ swal.butText }}",#}
+{#                    });#}
+{#        </script>#}
+{#    {% endif %}#}
+{#    <form method="POST" class="post-form">{% csrf_token %}#}
+{#        {{ form.as_p }}#}
+{#        <button type="submit" class="save btn btn-default">Save</button>#}
+{#    </form>#}
+{#    #}
+    <form method="POST" action="{% url 'editevent' %}" style="width: 75%;margin: 0 auto;margin-top: 4%;" >{% csrf_token %}
+    <input type="hidden" value="{{ eventId }}" name="eventId">
+  <div class="form-group">
+    <label for="title">Title:</label>
+    <input type="text" class="form-control" id="title" name="title" required>
+  </div>
+
+ <div class="form-group">
+    <label for="description">Description</label>
+    <textarea class="form-control" id="description" rows="3" name="description"></textarea>
+  </div>
+
+        <div class="form-group">
+    <label for="venue">Venue:</label>
+    <input type="text" class="form-control" id="venue" name="venue" required>
+  </div>
+
+        <div class="form-group">
+    <label for="date">Date:</label>
+    <input type="date" min="{{ mindate }}" max="2020-12-31" class="form-control" id="date" name="date" required>
+  </div>
+        <div class="form-group">
+    <label for="time">Time:</label>
+    <input type="text" class="form-control timepicker" id="time" name="time" required>
+  </div>
+         <div class="form-group">
+              <label for="audinece">Audience:</label>
+             <input type="text" class="form-control"  value="{{ audience.0 }}" disabled>
+             <input type="hidden" id="audience" name="audience" value="{{ audience.1}}">
+
+{#<select class="form-control chosen-select" multiple="true" name="audience" style="width:200px;"  disabled>#}
+{#            {% for aud in audience %}#}
+{#        <option value="{{ aud.key }}">{{ aud.value }}</option>#}
+{#    {% endfor %}#}
+{#</select>#}
+         </div>
+
+    <div class="form-group">
+              <label for="creator">Creator:</label>
+             <input type="text" class="form-control"  value="{{ creator }}" id="creator" disabled>
+         </div>
+
+            <div class="form-group">
+              <label for="helpers">Helpers:</label>
+<select class="form-control chosen-select" multiple="true" name="helpers" style="width:200px;">
+    {% for helper in helpers %}
+        {% if helper.check %}
+        <option value="{{ helper.username }}" selected>{{ helper.fullname }} ({{ helper.username }})</option>
+        {% else %}
+        <option value="{{ helper.username }}" >{{ helper.fullname }} ({{ helper.username }})</option>
+        {% endif %}
+    {% endfor %}
+</select>
+         </div>
+
+  <button type="submit" class="btn btn-default">Submit</button>
+
+</form>
+
+    <script type="application/javascript">
+    $(function() {
+    $(".chosen-select").chosen();
+});
+    var options ={
+    twentyFour:true,
+        upArrow: 'wickedpicker__controls__control-up',
+        downArrow: 'wickedpicker__controls__control-down',
+        close: 'wickedpicker__close',
+        hoverState: 'hover-state',
+        title: 'Time',
+        showSeconds: false,
+        clearable:true,
+    };
+    $('.timepicker').wickedpicker(options);
+
+    {#var d = document.getElementById("nav_createevent");#}
+    {#d.className += " active";#}
+    </script>
+
+    {% if fillFormFlag != None %}
+        <script type="application/javascript">
+            titleElem = document.getElementById("title");
+            titleElem.value = "{{ title }}";
+
+            descriptionElem = document.getElementById("description");
+            descriptionElem.value = "{{ description }}";
+
+            venueElem = document.getElementById("venue");
+            venueElem.value = "{{ venue }}";
+
+            dateElem = document.getElementById("date");
+            dateElem.value = "{{ date }}";
+
+            timeElem = document.getElementById("time");
+            timeElem.value = "{{ time }}";
+        </script>
+    {% endif %}
+
+{% endblock %}
+
+
