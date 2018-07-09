@@ -11,5 +11,6 @@ urlpatterns = [
     path('complaint', views.complaint, name = 'complaint'),
     path('allcomplaints', views.allComplaints, name="allComplaints"),
     path('changeComplaintStatus', views.changeComplaintStatus, name="changeComplaintStatus"),
-    path('changepassword',views.changePassword, name="changepassword")
+    path('changepassword',views.changePassword, name="changepassword"),
+    path('deleteevent', views.deleteEvent, name="deleteevent")
         ]

@@ -43,6 +43,8 @@
                 <button onclick=(location.href="{% url 'editevent' %}?eventId={{ event.uid }}")>Edit Event</button>
                 {% if event.deleteFlag %}
                 <button onclick=deleteEvent(this) id="{{ event.uid }}">Delete Event</button>
+                    {% else %}
+                     <button disabled>Delete Event</button>
                 {% endif %}
                 </td>
                 {% else %}
@@ -68,7 +70,58 @@
 
     function deleteEvent(button) {
         console.log(button.id);
+        swal({
+              title: 'Are you sure you want the delete the event?',
+              text: "You won't be able to revert this!",
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+              if (result.value) {
+                  let requestData = {};
+                  requestData.eventUid = button.id;
+                  sendRequest(requestData)
+              }
+            })
     }
+
+    function sendRequest(data) {
+     var csrftoken = Cookies.get('csrftoken');
+    let url = "{% url 'deleteevent' %}" ;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        console.log(this.responseText);
+         swal(
+                  'Deleted!',
+                  'The event has been deleted.',
+                  'success'
+                ).then((result) =>{
+                    window.location.reload();
+         })
+    }
+    else if (this.readyState == 4 && this.status == 400){
+          swal(
+                  'Error!',
+                  'Sorry! Bad request. Please try again.',
+                  'error'
+                )
+    }
+       else if (this.readyState == 4 && this.status == 408){
+          swal(
+                  'Error!',
+                  'Sorry! Unable to delete event. Please try again.',
+                  'error'
+                )
+    }
+  };
+  xhttp.open("POST", url, true);
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.setRequestHeader("X-CSRFToken", csrftoken);
+  xhttp.send(JSON.stringify(data));
+}
 </script>
 
 {% endblock %}

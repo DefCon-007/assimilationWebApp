@@ -392,6 +392,23 @@ def editevent(request) :
                 settings.LOGGER.exception(f"In editevent following exception occured while unpacking data from request {e}")
     else :
         return custom403ErrorPage(request,None)
+
+
+@api_view(["POST"])
+def deleteEvent(request) :
+    try :
+        data = request.data
+        eventUID = data["eventUid"]
+        status = db.deleteEventByUid(eventUID)
+        if status :
+            return JsonResponse({"status": "ok"}, status=200)
+        else :
+            return JsonResponse({"status": "NotOk"}, status=408)
+    except Exception as e:
+        settings.LOGGER.exception(f"Following exception occured in delete event view\n {e}")
+        return JsonResponse({"status":"NotOk"}, status=400)
+
+
 def custom404ErrorPage(request,exception) :
     return render(request, "webview/errorPage.html", {
         "d1": 4, "d2": 0, "d3": 4, "msg": "Sorry! Page not found."

@@ -174,6 +174,15 @@ def getEventByUUID(uid) :
         print(e)
         return None
 
+def deleteEventByUid(uid) :
+    try :
+        eventFromUid = event.objects.get(id=uid)
+        eventFromUid.delete()
+        return True
+    except Exception as e:
+        settings.LOGGER.exception(f"Following exception occured while deleting event {uid} \n{e}")
+        return False
+
 #Complaints
 def addNewComplaintByEventAndUser(message,event,user) :
     if event and user :
