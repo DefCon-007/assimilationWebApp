@@ -3,6 +3,7 @@ from api.models import event, attendance, complaint,UserDeviceIdAndAuthToken
 from assimilation import settings
 from api.src import utils
 import datetime
+from raven.contrib.django.raven_compat.models import client
 import uuid
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
@@ -258,6 +259,15 @@ def getUserDeviceIdAndAuthTokenObjectByUser(user,deviceId)  :
             settings.LOGGER.exception(f"Following exception occured in saving new auth object for {user.username}, deviceId {deviceId}\n{e}")
             status = False
         return token, status
+
+def getUserFromToken(token) :
+    try :
+        user = UserDeviceIdAndAuthToken.objects.get(token=token).user
+        return user
+    except Exception as e :
+        settings.LOGGER.exception(f"Following exception occurred while getting user from token {token}\n{e}")
+        client.captureException()
+        return None
 #EXTRAS
 def getUserFromUsername(username) :
     try:

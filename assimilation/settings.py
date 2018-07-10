@@ -14,6 +14,8 @@ import os
 import configparser
 import json
 import logging
+import raven
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'webview',
+    'raven.contrib.django.raven_compat',
 
 ]
 
@@ -96,6 +99,11 @@ LOGGING = {
          'formatter': 'django',
          'address' : '/dev/log',
        },
+        'sentry': {
+            'level': 'DEBUG', # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'assimilation-django'},
+        },
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'django-local',
@@ -120,7 +128,12 @@ LOGGER = logging.getLogger(config.get("django","LOGGER"))
 
 WSGI_APPLICATION = 'assimilation.wsgi.application'
 
-
+RAVEN_CONFIG = {
+    'dsn': config.get("django","SENTRY_DSN"),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    # 'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
