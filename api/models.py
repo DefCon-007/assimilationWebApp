@@ -15,10 +15,12 @@ class attendance(models.Model) :
     event = models.ForeignKey(event, on_delete=models.CASCADE,default=None,related_name="eventName")
     user = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="student")
     attendanceStatus = models.NullBooleanField(null=True,blank=True)
-class student(models.Model) :
-    name = models.CharField(max_length=250)
-    rollno = models.CharField(max_length=20)
-    email = models.CharField(max_length=250)
+
+class UserDeviceIdAndAuthToken(models.Model) :
+    user = models.ForeignKey(User, on_delete=models.PROTECT, default=None, related_name="authTable")
+    token = models.UUIDField(default=uuid.uuid4)
+    deviceId = models.CharField(max_length=250, blank=True, null=True)
+
 
 class complaint(models.Model) :
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

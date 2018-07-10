@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User, Group
-from api.models import event, attendance, complaint
+from api.models import event, attendance, complaint,UserDeviceIdAndAuthToken
 from assimilation import settings
 from api.src import utils
 import datetime
+import uuid
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
     depGroupList = list()
@@ -30,18 +31,20 @@ def getHelpersFromGroupName(grpNameList,requestUserName):
     for grpName in grpNameList :
         if grpName == settings.ATTENDANCE_TAKER_GROUP_NAME :
             continue
-        if grpName == settings.SUPER_ADMINS_GROUP_NAME :
-            return allAdmins
-        try :
-            userList.extend(allAdmins.filter(groups__name=grpName))
-        except ValueError :
-            print("Unknown grp found")
+        elif grpName == settings.SUPER_ADMINS_GROUP_NAME :
+            userList.extend(allAdmins.filter(groups__name=settings.GYMKHANA_GSEC_GROUP_NAME))
+        else :
+            try :
+                userList.extend(allAdmins.filter(groups__name=grpName))
+            except ValueError as e:
+                settings.LOGGER.exception(f"Following exception occured while getting helper from group name{grpName}\n{e}")
+                print("Unknown grp found")
     return userList
 
 #Attendance
 def addStudentsInAttendanceTable(audience,event) :
     # userList = list()
-    if audience == settings.SUPER_ADMINS_GROUP_NAME :
+    if audience == settings.SUPER_ADMINS_GROUP_NAME or audience == settings.GYMKHANA_GSEC_GROUP_NAME :
         userList = User.objects.filter(groups__name='student')
     else :
         userList = User.objects.filter(groups__name='student').filter(groups__name=audience)
@@ -225,6 +228,36 @@ def changeComplaintStatusByComplaintId(complaintId) :
         return True
     else :
         return False
+
+#UserDeviceIdAndAuthToken
+def getUserDeviceIdAndAuthTokenObjectByUser(user,deviceId)  :
+    data = user.authTable.get_queryset()
+    token = uuid.uuid4()
+    if data :
+        authObj = data[0]
+        print(f"existing user {authObj.token}")
+        authObj.token =token
+        authObj.deviceId = deviceId
+        try :
+            authObj.save()
+            status = True
+        except Exception as e :
+            settings.LOGGER.exception(f"Following exception occured in saving new auth object for {user.username}, deviceId {deviceId}\n{e}")
+            status = False
+        return token, status
+    else :
+        print("new user")
+        authObj = UserDeviceIdAndAuthToken()
+        authObj.token = token
+        authObj.user = user
+        authObj.deviceId = deviceId
+        try :
+            authObj.save()
+            status = True
+        except Exception as e :
+            settings.LOGGER.exception(f"Following exception occured in saving new auth object for {user.username}, deviceId {deviceId}\n{e}")
+            status = False
+        return token, status
 #EXTRAS
 def getUserFromUsername(username) :
     try:

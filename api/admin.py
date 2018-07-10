@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import  *
 
-modelList = [attendance,student, complaint]
+modelList = [attendance,UserDeviceIdAndAuthToken, complaint]
 admin.site.register(modelList)
 
 class EventList(admin.ModelAdmin) :

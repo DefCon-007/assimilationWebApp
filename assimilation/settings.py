@@ -190,6 +190,7 @@ CSRF_COOKIE_SECURE = config.getboolean("django","SSL_REDIRECT")
 SESSION_COOKIE_SECURE = config.getboolean("django","SSL_REDIRECT")
 ATTENDANCE_TAKER_GROUP_NAME = "attendanceTakers"
 SUPER_ADMINS_GROUP_NAME = "superadmins"
+GYMKHANA_GSEC_GROUP_NAME = "gymkhanaGsec"
 GROUPS_MAP = {
     "hc_rk" : "Hall Council RK",
     "hc_rp" : "Hall Council RP",
@@ -199,4 +200,5 @@ GROUPS_MAP = {
     "dep_ag" : "Department AG",
     "dep_ar" : "Department AR",
     SUPER_ADMINS_GROUP_NAME : "All Students",
+    GYMKHANA_GSEC_GROUP_NAME : "All Students"
 }
