@@ -399,6 +399,11 @@ def deleteEvent(request) :
     try :
         data = request.data
         eventUID = data["eventUid"]
+        event = db.getEventByUUID(eventUID)
+        if event :
+            creator = event.createdBy
+            if creator != request.user :
+                return JsonResponse({"status": "NotOk"}, status=408)
         status = db.deleteEventByUid(eventUID)
         if status :
             return JsonResponse({"status": "ok"}, status=200)

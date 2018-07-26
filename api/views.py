@@ -11,8 +11,8 @@ from raven.contrib.django.raven_compat.models import client
 def login(request) :
     data = request.data
     try :
-        username = data["username"]
-        password = data["password"]
+        username = data["username"].strip()
+        password = data["password"].strip()
         deviceId = data["deviceId"]
     except KeyError :
         return HttpResponse("Bad Request. Contact administrator",status=400)
@@ -125,3 +125,42 @@ def getStudentAttendanceList(request) :
         return JsonResponse({"attendanceList" : attendanceList}, status=200)
     except Exception as e :
         pass
+
+@api_view(["POST"])
+def changePassword(request) :
+    try :
+        data = request.data
+        newPassword = data["password"]
+        token = data["token"]
+        pwdChangeStatus = db.changePasswordByToken(token,newPassword)
+        if pwdChangeStatus :
+            return JsonResponse({"passwordChangeStatus": True}, status=200)
+        else :
+            return JsonResponse({"passwordChangeStatus": False}, status=200)
+    except Exception as e :
+        settings.LOGGER.exception(f"Following exception occurred while changing user password in api\n{e}")
+        return  JsonResponse({"passwordChangeStatus" : False}, status=200)
+
+
+@api_view(["POST"])
+def deleteEvent(request) :
+    try :
+        data = request.data
+        eventUID = data["eventUid"]
+        token = data["token"]
+        user = db.getUserFromToken(token)
+        event = db.getEventByUUID(eventUID)
+        if not user or not event:
+            return JsonResponse({"deleteStatus" : False},status=200)
+        else :
+            creator = event.createdBy
+            if user != creator :
+                return JsonResponse({"deleteStatus": False}, status=200)
+        status = db.deleteEventByUid(eventUID)
+        if status :
+            return JsonResponse({"deleteStatus": True}, status=200)
+        else :
+            return JsonResponse({"deleteStatus": False}, status=200)
+    except Exception as e:
+        settings.LOGGER.exception(f"Following exception occured in delete event view\n {e}")
+        return JsonResponse({"deleteStatus": False}, status=200)

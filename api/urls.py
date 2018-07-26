@@ -8,4 +8,6 @@ urlpatterns = [
     path('upcomingevent', views.upcomingevent),
     path('singlestudentattendance',views.markSingleUserAttendance),
     path('getstudentattendancelist', views.getStudentAttendanceList),
+    path('changepassword', views.changePassword),
+    path('deleteevent', views.deleteEvent),
         ]

@@ -175,7 +175,7 @@ def getEventDictListFromEventList(eventList,role) :
                 audienceList.append(settings.GROUPS_MAP[audience.name])
             except Exception as e:
                 settings.LOGGER.exception(f"Following exception occured while getting mapped audience name for upcoming event\n{e}")
-        if Eventdatetime > datetime.datetime.now() :
+        if Eventdatetime > datetime.datetime.now() and role =="Owner":
             deleteFlag = True
         else :
             deleteFlag = False
@@ -303,6 +303,15 @@ def getlistOfPushNotificationIdsFromAudienceGroup(grp) :
             if (obj[0].deviceId) :
                 idList.append(obj[0].deviceId)
     return idList
+
+def changePasswordByToken(token,password) :
+    user = getUserFromToken(token)
+    if user :
+        user.set_password(password)
+        user.save()
+        return True
+    else :
+        return False
 
 #EXTRAS
 def getUserFromUsername(username) :
