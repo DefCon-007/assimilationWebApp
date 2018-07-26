@@ -201,9 +201,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 SECURE_SSL_REDIRECT = config.getboolean("django","SSL_REDIRECT")
 CSRF_COOKIE_SECURE = config.getboolean("django","SSL_REDIRECT")
 SESSION_COOKIE_SECURE = config.getboolean("django","SSL_REDIRECT")
+
+
 ATTENDANCE_TAKER_GROUP_NAME = "attendanceTakers"
 SUPER_ADMINS_GROUP_NAME = "superadmins"
 GYMKHANA_GSEC_GROUP_NAME = "gymkhanaGsec"
+STUDENT_GROUP_NAME = "student"
+
 GROUPS_MAP = {
     "hc_rk" : "Hall Council RK",
     "hc_rp" : "Hall Council RP",
@@ -215,3 +219,5 @@ GROUPS_MAP = {
     SUPER_ADMINS_GROUP_NAME : "All Students",
     GYMKHANA_GSEC_GROUP_NAME : "All Students"
 }
+
+FCM_SERVER_KEY = config.get("django","FCM_SERVER_KEY")

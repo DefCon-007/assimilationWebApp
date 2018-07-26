@@ -30,5 +30,14 @@ def getHelperFormattedListFromQuerySet(helperList) :
         })
     return formattedHelperList
 
+def convertAttendanceObjectListToListOfDict(attendanceObjList) :
+    listToReturn = list()
+    for data in attendanceObjList :
+        listToReturn.append({
+            "roll" : data.user.username,
+            "name" : data.user.get_full_name(),
+            "attendanceStatus" : True if data.attendanceStatus else False
+        })
+    return listToReturn
 # def addNewEvent() :
 #

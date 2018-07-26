@@ -5,6 +5,7 @@ from api.src import utils
 import datetime
 from raven.contrib.django.raven_compat.models import client
 import uuid
+from api.src import notifications
 def getListofAllDepAndHallGroups() :
     allGroups = Group.objects.all()
     depGroupList = list()
@@ -69,6 +70,24 @@ def markAttendanceByUserListAndEventUUID(uid,userList):
                     attendanceObj.attendanceStatus = status
                     attendanceObj.save()
 
+def markAttendanceByUserAndEventUUID(uid,username,status) :
+    particularEvent = getEventByUUID(uid)
+    if particularEvent:
+        userObj = getUserFromCaseInsensitiveUsername(username)
+        if userObj:
+            attendanceObj = attendance.objects.get(event=particularEvent, user=userObj)
+            if attendanceObj:
+                attendanceObj.attendanceStatus = status
+                attendanceObj.save()
+                return True
+            else :
+                return False
+        else :
+            return  False
+    else :
+        return False
+
+
 
 
 #EVENT
@@ -86,6 +105,7 @@ def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) 
     except Exception as e:
         settings.LOGGER.exception(f"While getting group for {audience} following exception occurred \n{e}")
         return False
+
     if helpers :
         for helper in helpers :
             user = getUserFromUsername(helper)
@@ -93,6 +113,7 @@ def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) 
                 data.helpers.add(user)
     data.save()
     addStudentsInAttendanceTable(audience,data)
+    notifications.sendNotification(grp,datetimeobj.strftime("%a, %d %b"), title)
     return True
 
 def editEvent(eventId,title,description,venue,datetimeobj,helpersList) :
@@ -123,6 +144,7 @@ def getEventFromUsername(username) :
             formattedEventList.extend(getEventDictListFromEventList(eventListOwner, "Owner"))
             eventList = event.objects.filter().exclude(createdBy=user)
             formattedEventList .extend(getEventDictListFromEventList(eventList, ""))
+            formattedEventList.sort(key=lambda x: datetime.datetime.strptime(x["date"],"%d/%m/%Y"), reverse=True)
             return formattedEventList
         if user.has_perm('api.add_event') :
             #this implies user is a attendance taker
@@ -130,11 +152,13 @@ def getEventFromUsername(username) :
             formattedEventList.extend(getEventDictListFromEventList(eventList, "Owner"))
             eventList = user.manytomanyevents.get_queryset()
             formattedEventList.extend(getEventDictListFromEventList(eventList, "Helper"))
+            formattedEventList.sort(key=lambda x: datetime.datetime.strptime(x["date"], "%d/%m/%Y"), reverse=True)
             return formattedEventList
         else :
             #this means user is a student
             for grp in user.groups.all() :
                 formattedEventList.extend(getEventDictListFromEventList(grp.group_events.get_queryset(),"student" ))
+            formattedEventList.sort(key=lambda x: datetime.datetime.strptime(x["date"], "%d/%m/%Y"), reverse=True)
             return formattedEventList
     else :
         return []
@@ -268,10 +292,29 @@ def getUserFromToken(token) :
         settings.LOGGER.exception(f"Following exception occurred while getting user from token {token}\n{e}")
         client.captureException()
         return None
+
+def getlistOfPushNotificationIdsFromAudienceGroup(grp) :
+    userList = User.objects.filter(groups__name=grp.name)
+    idList = []
+    for user in userList :
+        obj = user.authTable.get_queryset()
+        if obj :
+            print(obj)
+            if (obj[0].deviceId) :
+                idList.append(obj[0].deviceId)
+    return idList
+
 #EXTRAS
 def getUserFromUsername(username) :
     try:
         user = User.objects.get(username=username)
+        return user
+    except Exception as e:
+        return None
+
+def getUserFromCaseInsensitiveUsername(username) :
+    try:
+        user = User.objects.get(username__iexact=username)
         return user
     except Exception as e:
         return None

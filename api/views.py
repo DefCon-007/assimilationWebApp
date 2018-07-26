@@ -33,7 +33,15 @@ def login(request) :
                 pass
         validHelpersList = db.getHelpersFromGroupName(grpNameList, user.username)
         helperListForView = utils.getHelperFormattedListFromQuerySet(validHelpersList)
-        return JsonResponse({"name": user.get_short_name(), "audience" : json.dumps({"key" :grpNameMappedList[1], "value":grpNameMappedList[0] }), "token" : token, "helpers" : json.dumps(helperListForView)},status=200)
+        return JsonResponse({"name": user.get_short_name(),
+                             "audience" : json.dumps({"key" :grpNameMappedList[1],
+                                                      "value":grpNameMappedList[0] }),
+                                                        "token" : token,
+                                                        "helpers" : json.dumps(helperListForView),
+                                                        "isAttendanceTaker" : utils.isMember(user, settings.ATTENDANCE_TAKER_GROUP_NAME),
+                                                        "isSuperAdmin" : utils.isMember(user,settings.SUPER_ADMINS_GROUP_NAME),
+                                                        "isStudent" : utils.isMember(user,settings.STUDENT_GROUP_NAME),
+                                                        "isGymakhanaGsec": utils.isMember(user,settings.GYMKHANA_GSEC_GROUP_NAME) },status=200)
     else :
         return HttpResponse("Invalid credentials. Please try again!",status=401)
 
@@ -59,7 +67,6 @@ def createEvent(request) :
                 helpers = None
             status = db.addNewEvent(title=title, description=description, venue=venue, datetimeobj=datetimeobject,
                                     audience=audience, helpers=helpers, createdBy=user)
-            status = False
             if status :
                 return JsonResponse({"success":True, "message" :"Event created successfully" }, status=200)
             else :
@@ -70,3 +77,51 @@ def createEvent(request) :
         settings.LOGGER.exception(f"Following exception occured in createEvnt api POST {e}")
         client.captureException()
         return  JsonResponse({"status" : "Sorry! Server error. Please try again"},status=500)
+
+@api_view(["POST"])
+def upcomingevent(request) :
+    try :
+        data = request.data
+        token = data["token"]
+        user = db.getUserFromToken(token)
+        if user :
+            eventsList = db.getEventFromUsername(user.username)
+            print(eventsList)
+            return JsonResponse({"eventData" : eventsList}, status=200)
+        else :
+            pass
+    except Exception as e :
+        client.captureException(e)
+        settings.LOGGER(f"Following exception occured in upcoming event {e}")
+    pass
+
+@api_view(["POST"])
+def markSingleUserAttendance(request) :
+    try :
+        data = request.data
+        eventUid = data["eventUid"]
+        username = data["username"].strip()
+        attendancestatus = data["status"].strip().lower()
+        if attendancestatus == "true" :
+            attendancestatus = True
+        else :
+            attendancestatus = False
+        status =  db.markAttendanceByUserAndEventUUID(eventUid,username, attendancestatus)
+        if status :
+            return JsonResponse({"attendanceStatus" : True, "message":"Attendance marked successfully"},status=200)
+        else :
+            return JsonResponse({"attendanceStatus": False, "message": "Unable to mark attendance"}, status=200)
+    except Exception as e :
+        settings.LOGGER.exception(f"Following exception occured while marking attendance for single user\n{e}")
+        return JsonResponse({"attendanceStatus": False, "message": "Unable to mark attendance"}, status=200)
+
+@api_view(["POST"])
+def getStudentAttendanceList(request) :
+    try :
+        data = request.data
+        eventUid = data["eventUid"]
+        event = db.getEventByUUID(eventUid)
+        attendanceList = utils.convertAttendanceObjectListToListOfDict(db.getAttendanceObjectListFromEvent(event))
+        return JsonResponse({"attendanceList" : attendanceList}, status=200)
+    except Exception as e :
+        pass
