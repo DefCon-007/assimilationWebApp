@@ -10,4 +10,5 @@ urlpatterns = [
     path('getstudentattendancelist', views.getStudentAttendanceList),
     path('changepassword', views.changePassword),
     path('deleteevent', views.deleteEvent),
+    path('raisecomplaint', views.createComplaint),
         ]

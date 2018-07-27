@@ -164,3 +164,28 @@ def deleteEvent(request) :
     except Exception as e:
         settings.LOGGER.exception(f"Following exception occured in delete event view\n {e}")
         return JsonResponse({"deleteStatus": False}, status=200)
+
+@api_view(["POST"])
+def createComplaint(request):
+    try :
+        data = request.data
+        eventUid = data["eventUID"]
+        token = data["token"]
+        complaint = data["complaint"]
+        user = db.getUserFromToken(token)
+        event = db.getEventByUUID(eventUid)
+
+        if not user or not event:
+            return JsonResponse({"complaintStatus": False}, status=200)
+        if not user.has_perm('api.add_complaint') :
+            return JsonResponse({"complaintStatus": False}, status=200)
+
+        status = db.addNewComplaintByEventAndUser(complaint, event, user)
+        if status :
+            return JsonResponse({"complaintStatus": True}, status=200)
+        else :
+            return JsonResponse({"complaintStatus": False}, status=200)
+
+    except Exception as e :
+        settings.LOGGER.exception(f"Following error occured in raising complaint\n{e}")
+        return JsonResponse({"complaintStatus": False},status=200)
