@@ -113,7 +113,7 @@ def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) 
                 data.helpers.add(user)
     data.save()
     addStudentsInAttendanceTable(audience,data)
-    notifications.sendNotification(grp,datetimeobj.strftime("%a, %d %b"), title)
+    notifications.sendNotification(grp, f"On {datetimeobj.strftime('%a, %d %b')}. {title}", "New Event")
     return True
 
 def editEvent(eventId,title,description,venue,datetimeobj,helpersList) :
@@ -205,6 +205,13 @@ def getEventByUUID(uid) :
 def deleteEventByUid(uid) :
     try :
         eventFromUid = event.objects.get(id=uid)
+        for audience in eventFromUid.audience.all() :
+            try :
+                notifications.sendNotification(audience.name,f"{eventFromUid.title} deleted", "Event deleted")
+                # audienceList.append(settings.GROUPS_MAP[audience.name])
+            except Exception as e:
+                settings.LOGGER.exception(f"Following exception occured while getting mapped audience name for upcoming event\n{e}")
+
         eventFromUid.delete()
         return True
     except Exception as e:
