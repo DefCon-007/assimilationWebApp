@@ -1,12 +1,16 @@
 {% extends 'webview/base.html' %}
-
+{% load static %}
 {% block content %}
 
-    <h3>Members of following:</h3>
+    <h3 >Note:</h3>
     <ul>
-        {% for grp in grpList %}
-            <li>{{ grp }}</li>
-    {% endfor %}
+        <li>Time is in 24 hours format.</li>
+        <li>Only event creators can delete the event.</li>
+        <li>You can download the android application by clicking <a href="https://play.google.com/store/apps/details?id=assimilation.visdrotech.com.assimilation">here</a>. Or scanning the below QR code.<br>
+        <img src="{% static '/webview/qrcode.png' %}" style="width: 100px;height: 100px">
+        </li>
+        <li>Slides for knowing the working of the website can be found <a href="#">here</a>. </li>
+        <li>Slides for knowing the working of the android application can be found <a href="#">here</a>. </li>
     </ul>
 
     <script type="application/javascript">
