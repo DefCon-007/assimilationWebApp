@@ -189,3 +189,46 @@ def createComplaint(request):
     except Exception as e :
         settings.LOGGER.exception(f"Following error occured in raising complaint\n{e}")
         return JsonResponse({"complaintStatus": False},status=200)
+
+
+@api_view(["POST"])
+def getAllComplaints(request) :
+    try :
+        data = request.data
+        token = data["token"]
+        user = db.getUserFromToken(token)
+        if not user:
+            print("not user")
+            return JsonResponse({"status": False, "data": None}, status=200)
+        if not utils.isMember(user, settings.SUPER_ADMINS_GROUP_NAME) :
+            print("not super admin")
+            return JsonResponse({"status": False, "data": None}, status=200)
+        allComplaintDict = db.getAllFormatedComplaintsDict()
+        print("success")
+        print(allComplaintDict)
+        return JsonResponse({"status" : True, "data":allComplaintDict}, status=200)
+    except Exception as e:
+        settings.LOGGER.exception(f"Following error occured in showing all complaints\n{e}")
+        return JsonResponse({"status": False, "data": None}, status=200)
+
+@api_view(["POST"])
+def changeComplaintStatus(request) :
+    try :
+        data = request.data
+        token = data["token"]
+        complaintId = data["complaintId"]
+        user = db.getUserFromToken(token)
+        if not user:
+            print("not user")
+            return JsonResponse({"complaintStatus": False}, status=200)
+        if not utils.isMember(user, settings.SUPER_ADMINS_GROUP_NAME) :
+            print("not super admin")
+            return JsonResponse({"complaintStatus": False}, status=200)
+        status = db.changeComplaintStatusByComplaintId(complaintId)
+        if status :
+            return JsonResponse({"complaintStatus": True}, status=200)
+        else :
+            return JsonResponse({"complaintStatus": False}, status=200)
+    except Exception as e:
+        settings.LOGGER.exception(f"Following error occured in changing complaint status\n{e}")
+        return JsonResponse({"complaintStatus": False }, status=200)

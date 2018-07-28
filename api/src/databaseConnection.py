@@ -244,7 +244,7 @@ def getAllFormatedComplaintsDict() :
             helperList.append(f"{helper.get_full_name()} ({helper.username})")
         allComplaintFormattedDictList.append({
             "eventCreatedBy" : f"{event.createdBy.get_full_name()} ({event.createdBy.username})",
-            "eventDate" : event.datetime.strftime("%d/%m%Y"),
+            "eventDate" : event.datetime.strftime("%d/%m/%Y"),
             "eventHelpers" : helperList,
             "eventVenue" : event.venue,
             "eventTitle" : event.title,
