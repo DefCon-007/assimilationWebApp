@@ -230,11 +230,13 @@ def complaint(request) :
 
 @api_view(["GET"])
 def allComplaints(request):
-    allComplaints = db.getAllFormatedComplaintsDict()
-    return  render(request,"webview/allcomplaints.html", {
-        "allComplaints" : allComplaints
-    })
-    pass
+    if utils.isMember(request.user, settings.SUPER_ADMINS_GROUP_NAME) :
+        allComplaints = db.getAllFormatedComplaintsDict()
+        return  render(request,"webview/allcomplaints.html", {
+            "allComplaints" : allComplaints
+        })
+    else :
+        return  custom403ErrorPage(request,None)
 
 @api_view(["GET"])
 def changeComplaintStatus(request) :

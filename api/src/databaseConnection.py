@@ -99,7 +99,10 @@ def addNewEvent(title,description,venue,datetimeobj,audience,helpers,createdBy) 
     data.datetime = datetimeobj
     data.createdBy = createdBy
     try :
-        grp = Group.objects.get(name=audience)
+        if (audience == settings.SUPER_ADMINS_GROUP_NAME or audience == settings.GYMKHANA_GSEC_GROUP_NAME) :
+            grp = Group.objects.get(name="student")
+        else :
+            grp = Group.objects.get(name=audience)
         data.save()
         data.audience.add(grp)
     except Exception as e:
@@ -241,7 +244,7 @@ def getAllFormatedComplaintsDict() :
             helperList.append(f"{helper.get_full_name()} ({helper.username})")
         allComplaintFormattedDictList.append({
             "eventCreatedBy" : f"{event.createdBy.get_full_name()} ({event.createdBy.username})",
-            "eventDate" : event.datetime.strftime("%d/%m%Y"),
+            "eventDate" : event.datetime.strftime("%d/%m/%Y"),
             "eventHelpers" : helperList,
             "eventVenue" : event.venue,
             "eventTitle" : event.title,

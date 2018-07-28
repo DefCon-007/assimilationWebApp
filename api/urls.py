@@ -11,4 +11,6 @@ urlpatterns = [
     path('changepassword', views.changePassword),
     path('deleteevent', views.deleteEvent),
     path('raisecomplaint', views.createComplaint),
+    path('allcomplaints', views.getAllComplaints),
+    path('changecomplaintstatus', views.changeComplaintStatus),
         ]
