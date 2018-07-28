@@ -239,7 +239,8 @@ GROUPS_MAP = {
     "hall_nhr": "NHR Hall",
     "hall_pat": "PAT Hall",
     SUPER_ADMINS_GROUP_NAME : "All Students",
-    GYMKHANA_GSEC_GROUP_NAME : "All Students"
+    GYMKHANA_GSEC_GROUP_NAME : "All Students",
+    "student" : "All Students",
 }
 
 FCM_SERVER_KEY = config.get("django","FCM_SERVER_KEY")
