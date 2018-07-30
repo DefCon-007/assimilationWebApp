@@ -154,6 +154,7 @@ def getStudentAttendanceList(request) :
         attendanceList = utils.convertAttendanceObjectListToListOfDict(db.getAttendanceObjectListFromEvent(event))
         return JsonResponse({"attendanceList" : attendanceList}, status=200)
     except Exception as e :
+        settings.LOGGER.exception(e)
         pass
 
 @api_view(["POST"])
