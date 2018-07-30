@@ -38,6 +38,7 @@ def convertAttendanceObjectListToListOfDict(attendanceObjList) :
             "name" : data.user.get_full_name(),
             "attendanceStatus" : True if data.attendanceStatus else False
         })
-    return listToReturn
+    newlist = sorted(listToReturn, key=lambda k: k['roll'])
+    return newlist
 # def addNewEvent() :
 #

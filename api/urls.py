@@ -13,4 +13,5 @@ urlpatterns = [
     path('raisecomplaint', views.createComplaint),
     path('allcomplaints', views.getAllComplaints),
     path('changecomplaintstatus', views.changeComplaintStatus),
+    path('markmultipleuserattendace', views.markMultipleUserAttendance),
         ]

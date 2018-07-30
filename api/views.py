@@ -116,6 +116,36 @@ def markSingleUserAttendance(request) :
         return JsonResponse({"attendanceStatus": False, "message": "Unable to mark attendance"}, status=200)
 
 @api_view(["POST"])
+def markMultipleUserAttendance(request) :
+    try :
+        data = request.data
+        eventUid = data["eventUid"]
+        data = data["data"].split("\n")
+
+        flag = True
+        # status=False
+        for attendanceDataStr in data[:-1] :
+            objList = attendanceDataStr.split(",")
+            username = objList[0].strip()
+            status = objList[1].strip()
+            if status == "true" :
+                print("marking attendance for " + username)
+                attendancestatus = True
+            else :
+                attendancestatus = False
+            dbstatus =  db.markAttendanceByUserAndEventUUID(eventUid,username.strip(), attendancestatus)
+            if not dbstatus :
+                flag = False
+        if flag :
+            return JsonResponse({"attendanceStatus" : True, "message":"Attendance marked successfully"},status=200)
+        else :
+            return JsonResponse({"attendanceStatus": False, "message": "Unable to mark attendance"}, status=200)
+    except Exception as e :
+        settings.LOGGER.exception(f"Following exception occured while marking attendance for single user\n{e}")
+        return JsonResponse({"attendanceStatus": False, "message": "Unable to mark attendance"}, status=200)
+
+
+@api_view(["POST"])
 def getStudentAttendanceList(request) :
     try :
         data = request.data
@@ -124,6 +154,7 @@ def getStudentAttendanceList(request) :
         attendanceList = utils.convertAttendanceObjectListToListOfDict(db.getAttendanceObjectListFromEvent(event))
         return JsonResponse({"attendanceList" : attendanceList}, status=200)
     except Exception as e :
+        settings.LOGGER.exception(e)
         pass
 
 @api_view(["POST"])

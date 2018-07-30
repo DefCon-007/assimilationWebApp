@@ -11,6 +11,10 @@ class event(models.Model) :
     helpers = models.ManyToManyField(User, related_name="manytomanyevents", blank=True)
     createdBy = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="owned_events")
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    def __str__(self):
+        return self.title
+
 class attendance(models.Model) :
     event = models.ForeignKey(event, on_delete=models.CASCADE,default=None,related_name="eventName")
     user = models.ForeignKey(User, on_delete=models.PROTECT,default=None,related_name="student")
